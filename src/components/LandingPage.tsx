@@ -15,6 +15,7 @@ export default function LandingPage() {
         justifyContent: 'center',
         padding: '20px',
         boxSizing: 'border-box',
+				marginTop: '40px'
       }}
     >
       <h1
