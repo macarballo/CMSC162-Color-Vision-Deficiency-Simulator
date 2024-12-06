@@ -11,8 +11,8 @@ import os
 app = Pyloid(app_name="Pyloid-App", single_instance=True)
 
 if is_production():
-    app.set_icon(os.path.join(get_production_path(), "icons/icon.png"))
-    app.set_tray_icon(os.path.join(get_production_path(), "icons/icon.png"))
+    app.set_icon(os.path.join(get_production_path(), "icons/icon.png")) # type: ignore
+    app.set_tray_icon(os.path.join(get_production_path(), "icons/icon.png")) # type: ignore
 else:
     app.set_icon("src-pyloid/icons/icon.png")
     app.set_tray_icon("src-pyloid/icons/icon.png")
@@ -37,30 +37,30 @@ app.set_tray_menu_items(
 ####################################################################
 
 ############################## Bridge ##############################
+from test_usage.test_functionality import TestClass
 
+# class custom(PyloidAPI):
+#     @Bridge(result=str)
+#     def create_window(self):
+#         window = self.app.create_window(
+#             title="Test",
+#             js_apis=[custom(), TestClass()],    # Define TestClass() here
+#         )
 
-class custom(PyloidAPI):
-    @Bridge(result=str)
-    def create_window(self):
-        window = self.app.create_window(
-            title="Pyloid Browser-2",
-            js_apis=[custom()],
-        )
+#         window.set_size(800, 600)
+#         window.set_position(0, 0)
 
-        window.set_size(800, 600)
-        window.set_position(0, 0)
+#         if is_production():
+#             window.set_dev_tools(False)
+#             window.load_file(os.path.join(get_production_path(), "build/index.html")) # type: ignore
+#         else:
+#             window.set_dev_tools(True)
+#             window.load_url("http://localhost:5173")
 
-        if is_production():
-            window.set_dev_tools(False)
-            window.load_file(os.path.join(get_production_path(), "build/index.html"))
-        else:
-            window.set_dev_tools(True)
-            window.load_url("http://localhost:5173")
+#         window.show()
+#         window.focus()
 
-        window.show()
-        window.focus()
-
-        return window.id
+#         return window.id
 
 
 ####################################################################
@@ -69,14 +69,14 @@ class custom(PyloidAPI):
 if is_production():
     # production
     window = app.create_window(
-        title="Pyloid Browser-production",
-        js_apis=[custom()],
+        title="CMSC 162",
+        js_apis=[TestClass()],    # Define TestClass() here
     )
-    window.load_file(os.path.join(get_production_path(), "build/index.html"))
+    window.load_file(os.path.join(get_production_path(), "build/index.html"))   # type: ignore
 else:
     window = app.create_window(
-        title="Pyloid Browser-dev",
-        js_apis=[custom()],
+        title="CMSC 162",
+        js_apis=[TestClass()],    # Define TestClass() here
         dev_tools=True,
     )
     window.load_url("http://localhost:5173")
