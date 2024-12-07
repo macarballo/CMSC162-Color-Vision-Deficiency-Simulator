@@ -14,4 +14,6 @@ Open the command prompt and run the following command to set the execution polic
 
 ```sh
 set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
 This command sets the execution policy to RemoteSigned for the current user, allowing scripts to run.
