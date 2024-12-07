@@ -1,7 +1,51 @@
 import { useState } from "react";
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import ReplayIcon from '@mui/icons-material/Replay';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 
 export default function Preview() {
-  const [selectedFilter, setSelectedFilter] = useState("Blue-Weak/Tritanomaly");
+  const [colorblindType, setColorblindType] = useState<keyof typeof filters | "Select">("Select");
+  const [selectedFilter, setSelectedFilter] = useState("");
+  const [isAdjustmentsVisible, setAdjustmentsVisible] = useState(true);
+  const [severity, setSeverity] = useState(50);
+  const [isFilterVisible, setFilterVisible] = useState(true);
+
+  const filters: { [key: string]: string[] } = {
+    "Anomalous Trichromacy": [
+      "Red-Weak/Protanomaly",
+      "Green-Weak/Deuteranomaly",
+      "Blue-Weak/Tritanomaly",
+    ],
+    "Dichromatic View": [
+      "Red-Blind/Protanopia",
+      "Green-Blind/Deuteranopia",
+      "Blue-Blind/Tritanopia",
+    ],
+    "Monochromatic View": [
+      "Monochromacy/Achromatopsia",
+      "Blue Cone Monochromacy",
+    ],
+  };
+
+  const getFilterStyle = () => {
+    if (!isFilterVisible || colorblindType === "Select" || !selectedFilter) {
+      return {};
+    }
+    // Apply your filter logic here based on selectedFilter and severity
+    // This is just a placeholder example
+    return {
+      filter: `grayscale(${severity}%)`,
+    };
+  };
+
+  const labelStyle = {
+    fontSize: "16px",
+    fontWeight: "500",
+    marginBottom: "8px",
+    display: "block",
+  };
 
   return (
     <div
@@ -10,7 +54,7 @@ export default function Preview() {
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "flex-start",
-        padding: "20px",
+        padding: "26px",
         width: "100vw",
         height: "100vh",
         boxSizing: "border-box",
@@ -35,133 +79,182 @@ export default function Preview() {
             height: "auto",
             borderRadius: "16px",
             objectFit: "cover",
+            ...getFilterStyle(),
           }}
         />
       </div>
 
-      {/* Right Section: Filters and Details */}
+      {/* Right Section: Filters and Adjustments */}
       <div style={{ flex: 2, display: "flex", flexDirection: "column" }}>
-        {/* Filters Section */}
-        <div style={{ marginBottom: "20px" }}>
-          <h3 style={{ fontSize: "18px", marginBottom: "10px" }}>Filters</h3>
-          <label style={{ fontSize: "14px", fontWeight: "500" }}>
-            Color Blindness Type
+        {/* Filter Section */}
+        <div
+          style={{
+            padding: "20px",
+            backgroundColor: "#F2F2F2",
+            borderRadius: "16px",
+            marginBottom: "26px",
+          }}
+        >
+          {/* Filter Header */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "16px",
+            }}
+          >
+            <span style={{ fontFamily: "Montserrat", fontSize: "12px" }}>
+              Filters
+            </span>
+            {isFilterVisible ? (
+              <VisibilityIcon
+                onClick={() => setFilterVisible(!isFilterVisible)}
+                style={{ cursor: "pointer" }}
+              />
+            ) : (
+              <VisibilityOffIcon
+                onClick={() => setFilterVisible(!isFilterVisible)}
+                style={{ cursor: "pointer" }}
+              />
+            )}
+          </div>
+
+          {/* Colorblindness Type Dropdown */}
+          <label style={labelStyle}>
+            Colorblindness Type
           </label>
           <select
-            value={selectedFilter}
-            onChange={(e) => setSelectedFilter(e.target.value)}
+            value={colorblindType}
+            onChange={(e) => {
+              setColorblindType(e.target.value);
+              setSelectedFilter(""); // Reset selected filter when type changes
+            }}
             style={{
               width: "100%",
               padding: "10px",
               borderRadius: "8px",
               border: "1px solid #ccc",
-              marginBottom: "20px",
+              marginTop: "16px",
+              marginBottom: "16px",
             }}
           >
+            <option value="Select">Select</option>
             <option value="Anomalous Trichromacy">Anomalous Trichromacy</option>
-            <option value="Red-Weak/Protanomaly">Red-Weak/Protanomaly</option>
-            <option value="Green-Weak/Deuteranomaly">
-              Green-Weak/Deuteranomaly
-            </option>
-            <option value="Blue-Weak/Tritanomaly">Blue-Weak/Tritanomaly</option>
+            <option value="Dichromatic View">Dichromatic View</option>
+            <option value="Monochromatic View">Monochromatic View</option>
           </select>
 
-          {/* Radio Buttons */}
-          <div>
-            {["Red-Weak/Protanomaly", "Green-Weak/Deuteranomaly", "Blue-Weak/Tritanomaly"].map(
-              (filter) => (
-                <label
-                  key={filter}
-                  style={{
-                    display: "block",
-                    marginBottom: "8px",
-                    fontSize: "14px",
-                    fontWeight: "500",
-                  }}
-                >
-                  <input
-                    type="radio"
-                    value={filter}
-                    checked={selectedFilter === filter}
-                    onChange={(e) => setSelectedFilter(e.target.value)}
-                    style={{ marginRight: "8px" }}
-                  />
-                  {filter}
-                </label>
-              )
-            )}
+          {/* Radio Buttons for Filter Options */}
+          {filters[colorblindType]?.map((filter: string) => (
+            <label
+              key={filter}
+              style={{
+                display: "block",
+                marginBottom: "8px",
+                fontSize: "14px",
+                fontWeight: "500",
+              }}
+            >
+              <input
+                type="radio"
+                value={filter}
+                checked={selectedFilter === filter}
+                onChange={() => setSelectedFilter(filter)}
+                style={{ marginRight: "8px" }}
+              />
+              {filter}
+            </label>
+          ))}
+        </div>
+
+        {/* Adjustment Section */}
+        <div
+          style={{
+            padding: "20px",
+            backgroundColor: "#F2F2F2",
+            borderRadius: "16px",
+            marginBottom: "26px",
+          }}
+        >
+          {/* Adjustment Header */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "16px",
+            }}
+          >
+            <span style={{ fontSize: "12px" }}>Adjustments</span>
+            <button
+              onClick={() => setAdjustmentsVisible(!isAdjustmentsVisible)}
+              style={{
+                width: "20px",
+                height: "20px",
+                border: "none",
+                background: "none",
+                cursor: "pointer",
+              }}
+            >
+              {isAdjustmentsVisible ? <ExpandMoreIcon /> : <ExpandLessIcon />}
+            </button>
           </div>
+
+          {isAdjustmentsVisible && (
+            <>
+              {/* Severity Slider */}
+              <label style={labelStyle}>
+                Severity
+              </label>
+              
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={severity}
+                onChange={(e) => setSeverity(parseInt(e.target.value))}
+                style={{
+                  width: "100%",
+                  appearance: "none",
+                  height: "8px",
+                  borderRadius: "4px",
+                  background:
+                    "linear-gradient(to right, red, orange, yellow, green, blue, violet)",
+                }}
+              />
+            </>
+          )}
         </div>
 
-        {/* Adjustments Section */}
-        <div style={{ marginBottom: "20px" }}>
-          <h3 style={{ fontSize: "18px", marginBottom: "10px" }}>Adjustments</h3>
-          <label
-            style={{
-              fontSize: "14px",
-              fontWeight: "500",
-              marginBottom: "8px",
-              display: "block",
+        {/* Reset Button */}
+        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+          <button
+            onClick={() => {
+              setColorblindType("Select");
+              setSelectedFilter("");
+              setSeverity(50);
+              setFilterVisible(true);
             }}
-          >
-            Color Slider
-          </label>
-          <input
-            type="range"
-            min="0"
-            max="100"
             style={{
+              maxWidth: "140px",
+              maxHeight: "52px",
               width: "100%",
-              appearance: "none",
-              height: "8px",
+              height: "100%",
+              padding: "16px 20px",
+              fontWeight: "600",
+              fontSize: "16px",
               borderRadius: "4px",
-              background: "linear-gradient(to right, red, orange, yellow, green, blue, violet)",
-            }}
-          />
-        </div>
-
-        {/* Details Section */}
-        <div>
-          <h4 style={{ fontSize: "16px", fontWeight: "600" }}>Deuteranopia</h4>
-          <p style={{ fontSize: "14px", marginBottom: "10px" }}>
-            The most common type of red-green color vision deficiency; it makes
-            certain shades of green look more red. This type is mild and
-            doesn’t usually get in the way of normal activities.
-          </p>
-          <a
-            href="https://nei.nih.gov"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: "#4E6AF0", fontSize: "14px", textDecoration: "none" }}
-          >
-            National Eye Institute
-          </a>
-        </div>
-
-        {/* Buttons */}
-        <div style={{ display: "flex", justifyContent: "space-between", marginTop: "20px" }}>
-          <button
-            style={{
-              padding: "10px 20px",
-              borderRadius: "8px",
-              border: "1px solid #ccc",
               backgroundColor: "#FFF",
+              border: "2px solid #191D21",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
               cursor: "pointer",
             }}
           >
-            + New
-          </button>
-          <button
-            style={{
-              padding: "10px 20px",
-              borderRadius: "8px",
-              backgroundColor: "#4E6AF0",
-              color: "#FFF",
-              border: "none",
-              cursor: "pointer",
-            }}
-          >
-            Export
+            <ReplayIcon style={{ marginRight: "8px" }} />
+            Reset
           </button>
         </div>
       </div>
