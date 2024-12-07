@@ -9,7 +9,7 @@ export default function Preview() {
   const [colorblindType, setColorblindType] = useState<keyof typeof filters | "Select">("Select");
   const [selectedFilter, setSelectedFilter] = useState("");
   const [isAdjustmentsVisible, setAdjustmentsVisible] = useState(true);
-  const [severity, setSeverity] = useState(50);
+  const [severity, setSeverity] = useState(0); // Default value set to 0
   const [isFilterVisible, setFilterVisible] = useState(true);
 
   const filters: { [key: string]: string[] } = {
@@ -124,26 +124,34 @@ export default function Preview() {
           <label style={labelStyle}>
             Colorblindness Type
           </label>
-          <select
-            value={colorblindType}
-            onChange={(e) => {
-              setColorblindType(e.target.value);
-              setSelectedFilter(""); // Reset selected filter when type changes
-            }}
-            style={{
-              width: "100%",
-              padding: "10px",
-              borderRadius: "8px",
-              border: "1px solid #ccc",
-              marginTop: "16px",
-              marginBottom: "16px",
-            }}
-          >
-            <option value="Select">Select</option>
-            <option value="Anomalous Trichromacy">Anomalous Trichromacy</option>
-            <option value="Dichromatic View">Dichromatic View</option>
-            <option value="Monochromatic View">Monochromatic View</option>
-          </select>
+          <div style={{ position: "relative" }}>
+            <select
+              value={colorblindType}
+              onChange={(e) => {
+                setColorblindType(e.target.value);
+                setSelectedFilter(""); // Reset selected filter when type changes
+              }}
+              style={{
+                width: "100%",
+                padding: "10px",
+                borderRadius: "8px",
+                border: "1px solid #ccc",
+                marginTop: "16px",
+                marginBottom: "16px",
+                fontFamily: "Montserrat, sans-serif",
+                paddingLeft: "16px", // Added padding inside the dropdown bar
+                appearance: "none",
+                WebkitAppearance: "none",
+                MozAppearance: "none",
+              }}
+            >
+              <option value="Select">Select</option>
+              <option value="Anomalous Trichromacy">Anomalous Trichromacy</option>
+              <option value="Dichromatic View">Dichromatic View</option>
+              <option value="Monochromatic View">Monochromatic View</option>
+            </select>
+            <ExpandMoreIcon style={{ position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)" }} />
+          </div>
 
           {/* Radio Buttons for Filter Options */}
           {filters[colorblindType]?.map((filter: string) => (
@@ -154,6 +162,7 @@ export default function Preview() {
                 marginBottom: "8px",
                 fontSize: "14px",
                 fontWeight: "500",
+                fontFamily: "Montserrat, sans-serif",
               }}
             >
               <input
@@ -186,7 +195,7 @@ export default function Preview() {
               marginBottom: "16px",
             }}
           >
-            <span style={{ fontSize: "12px" }}>Adjustments</span>
+            <span style={{ fontSize: "12px", fontFamily: "Montserrat, sans-serif" }}>Adjustments</span>
             <button
               onClick={() => setAdjustmentsVisible(!isAdjustmentsVisible)}
               style={{
@@ -207,22 +216,23 @@ export default function Preview() {
               <label style={labelStyle}>
                 Severity
               </label>
-              
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={severity}
-                onChange={(e) => setSeverity(parseInt(e.target.value))}
-                style={{
-                  width: "100%",
-                  appearance: "none",
-                  height: "8px",
-                  borderRadius: "4px",
-                  background:
-                    "linear-gradient(to right, red, orange, yellow, green, blue, violet)",
-                }}
-              />
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={severity}
+                  onChange={(e) => setSeverity(parseInt(e.target.value))}
+                  style={{
+                    width: "100%",
+                    appearance: "none",
+                    height: "8px",
+                    borderRadius: "4px",
+                    background: `linear-gradient(to right, blue ${severity}%, #ccc ${severity}%)`,
+                  }}
+                />
+                <span style={{ marginLeft: "10px", fontFamily: "Montserrat, sans-serif" }}>{severity}</span>
+              </div>
             </>
           )}
         </div>
@@ -233,7 +243,7 @@ export default function Preview() {
             onClick={() => {
               setColorblindType("Select");
               setSelectedFilter("");
-              setSeverity(50);
+              setSeverity(0); // Reset severity to 0
               setFilterVisible(true);
             }}
             style={{
@@ -251,6 +261,7 @@ export default function Preview() {
               alignItems: "center",
               justifyContent: "center",
               cursor: "pointer",
+              fontFamily: "Montserrat, sans-serif",
             }}
           >
             <ReplayIcon style={{ marginRight: "8px" }} />
