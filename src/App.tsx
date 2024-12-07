@@ -2,12 +2,11 @@ import LandingPage from './components/LandingPage';
 import Preview from './components/Preview';
 
 function App() {
-  return (
+	return (
 		<>
-			{/* <LandingPage /> */}
-			<Preview />
+			<LandingPage />
 		</>
-  );
+	);
 }
 
 export default App;
