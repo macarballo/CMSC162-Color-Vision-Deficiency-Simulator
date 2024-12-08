@@ -1,8 +1,12 @@
-import handsImage from '../assets/hands.png'
+// src/components/LandingPage.tsx
+import handsImage from '../assets/hands.png';
 import { useState } from 'react';
+import UploadWindow from './UploadWindow';
 
-export default function LandingPage() {
+const LandingPage: React.FC = () => {
   const [isHovered, setIsHovered] = useState(false);
+  const [showUploadWindow, setShowUploadWindow] = useState(false);
+
   return (
     <div
       style={{
@@ -15,13 +19,13 @@ export default function LandingPage() {
         justifyContent: 'center',
         padding: '20px',
         boxSizing: 'border-box',
-				marginTop: '40px'
+        marginTop: '40px',
       }}
     >
       <h1
         style={{
           fontFamily: 'Montserrat',
-          fontSize: '10vw', 
+          fontSize: '10vw',
           fontWeight: 'bold',
           margin: '0',
           textAlign: 'center',
@@ -32,9 +36,9 @@ export default function LandingPage() {
       <p
         style={{
           fontFamily: 'Montserrat',
-          fontSize: '1.9vw', 
+          fontSize: '1.9vw',
           fontWeight: 'bold',
-          margin: '16px 0', 
+          margin: '16px 0',
           textAlign: 'center',
         }}
       >
@@ -61,10 +65,12 @@ export default function LandingPage() {
         }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
+        onClick={() => setShowUploadWindow(true)}
       >
-
         Get Started
       </button>
+
+      {showUploadWindow && <UploadWindow onClose={() => setShowUploadWindow(false)} />}
 
       <div
         style={{
@@ -72,19 +78,17 @@ export default function LandingPage() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          marginTop: '24px', 
+          marginTop: '24px',
         }}
       >
-        
         <img
           src={handsImage}
           alt="Chromify Illustration"
           style={{
             maxWidth: '100%',
             maxHeight: '100%',
-						width: '480px',
+            width: '480px',
             objectFit: 'contain',
-
           }}
         />
       </div>
@@ -92,3 +96,4 @@ export default function LandingPage() {
   );
 }
 
+export default LandingPage;
