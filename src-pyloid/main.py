@@ -27,6 +27,7 @@ app.set_tray_actions(
     {
         TrayEvent.DoubleClick: on_double_click,
     }
+
 )
 app.set_tray_menu_items(
     [
@@ -69,13 +70,13 @@ from test_usage.test_functionality import TestClass
 if is_production():
     # production
     window = app.create_window(
-        title="CMSC 162",
+        title="Chromify",
         js_apis=[TestClass()],    # Define TestClass() here
     )
     window.load_file(os.path.join(get_production_path(), "build/index.html"))   # type: ignore
 else:
     window = app.create_window(
-        title="CMSC 162",
+        title="Chromify",
         js_apis=[TestClass()],    # Define TestClass() here
         dev_tools=True,
     )
