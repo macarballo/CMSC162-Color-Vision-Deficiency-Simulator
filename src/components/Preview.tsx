@@ -9,6 +9,7 @@ import LinkIcon from '@mui/icons-material/Link';
 import AddIcon from '@mui/icons-material/Add'; 
 import GetAppIcon from '@mui/icons-material/GetApp'; 
 import { useNavigate } from 'react-router-dom'; // Import the useNavigate hook
+import IshiharaPlate from '../assets/Ishihara_Plate_3.jpg'
 
 const filters: { [key: string]: string[] } = {
   "Anomalous Trichromacy": [
@@ -38,22 +39,111 @@ const filterInfo: { [key: string]: string } = {
   "Blue Cone Monochromacy": "Blue Cone Monochromacy is a condition where only blue cones function, leading to limited color vision.",
 };
 
+const simulationMatrices: { [key: string]: number[][][] } = {
+  "Select": [
+    [[1.000000, 0.000000, 0.000000], [0.000000, 1.000000, 0.000000], [0.000000, 0.000000, 1.000000]],
+  ],
+  "Red-Weak/Protanomaly": [
+    [[0.816670, 0.183330, 0.000000], [0.333330, 0.666670, 0.000000], [0.000000, 0.125000, 0.875000]],
+  ],
+  "Green-Weak/Deuteranomaly": [
+    [[0.800000, 0.200000, 0.000000], [0.258330, 0.741670, 0.000000], [0.000000, 0.141670, 0.858330]],
+  ],
+  "Blue-Weak/Tritanomaly": [
+    [[0.966670, 0.033330, 0.000000], [0.000000, 0.733330, 0.266670], [0.000000, 0.183330, 0.816670]],
+  ],
+  "Red-Blind/Protanopia": [
+    [[0.566670, 0.433330, 0.000000], [0.558330, 0.441670, 0.000000], [0.000000, 0.241670, 0.758330]],
+  ],
+  "Green-Blind/Deuteranopia": [
+    [[0.625000, 0.375000, 0.000000], [0.700000, 0.300000, 0.000000], [0.000000, 0.300000, 0.700000]],
+    ],
+  "Blue-Blind/Tritanopia": [
+    [[0.950000, 0.050000, 0.000000], [0.000000, 0.433330, 0.566670], [0.000000, 0.475000, 0.525000]],
+  ],
+  "Monochromacy/Achromatopsia": [
+    [[0.299000, 0.587000, 0.114000], [0.299000, 0.587000, 0.114000], [0.299000, 0.587000, 0.114000]],
+  ],
+  "Blue Cone Monochromacy": [
+    [[0.618000, 0.320000, 0.062000], [0.163000, 0.775000, 0.062000], [0.163000, 0.320000, 0.516000]],
+  ],
+  // Add other matrices as needed
+};
+
+/*
+const simulationMatrices: { [key: string]: number[][][] } = {
+  "Red-Weak/Protanomaly": [
+    [[0.856167, 0.182038, -0.038205], [0.029342, 0.955115, 0.015544], [-0.002880, -0.001563, 1.004443]],
+    [[0.458064, 0.679578, -0.137642], [0.092785, 0.846313, 0.060902], [-0.007494, -0.016807, 1.024301]],
+    [[0.152286, 1.052583, -0.204868], [0.114503, 0.786281, 0.099216], [-0.003882, -0.048116, 1.051998]],
+  ],
+  "Green-Weak/Deuteranomaly": [
+    [[0.866435, 0.177704, -0.044139], [0.049567, 0.939063, 0.011370], [-0.003453, 0.007233, 0.996220]],
+    [[0.547494, 0.607765, -0.155259], [0.181692, 0.781742, 0.036566], [-0.010410, 0.027275, 0.983136]],
+    [[0.367322, 0.860646, -0.227968], [0.280085, 0.672501, 0.047413], [-0.011820, 0.042940, 0.968881]],
+  ],
+  "Blue-Weak/Tritanomaly": [
+    [[0.926670, 0.092514, -0.019184], [0.021191, 0.964503, 0.014306], [0.008437, 0.054813, 0.936750]],
+    [[1.017277, 0.027029, -0.044306], [-0.006113, 0.958479, 0.047634], [0.006379, 0.248708, 0.744913]],
+    [[1.255528, -0.076749, -0.178779], [-0.078411, 0.930809, 0.147602], [0.004733, 0.691367, 0.303900]],
+  ],
+  // Add other matrices as needed
+};
+*/
+
 export default function Preview() {
   const [colorblindType, setColorblindType] = useState<keyof typeof filters | "Select">("Select");
   const [selectedFilter, setSelectedFilter] = useState("");
   const [isAdjustmentsVisible, setAdjustmentsVisible] = useState(true);
   const [severity, setSeverity] = useState(0); // Default value set to 0
   const [isFilterVisible, setFilterVisible] = useState(true);
+  const [filteredImageUrl, setFilteredImageUrl] = useState<string>(IshiharaPlate);
   
   const navigate = useNavigate(); // Initialize the navigate function
+  const applyFilter = () => {
+    if (colorblindType === "Select" || !selectedFilter || !isFilterVisible) return;
 
+    const img = new Image();
+    img.src = IshiharaPlate;
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d")!;
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const matrix = simulationMatrices[selectedFilter][0];  // Always use the first matrix as severity is handled in a linear fashion
+
+      for (let i = 0; i < imageData.data.length; i += 4) {
+        const r = imageData.data[i];
+        const g = imageData.data[i + 1];
+        const b = imageData.data[i + 2];
+
+        const [newR, newG, newB] = [
+          matrix[0][0] * r + matrix[0][1] * g + matrix[0][2] * b,
+          matrix[1][0] * r + matrix[1][1] * g + matrix[1][2] * b,
+          matrix[2][0] * r + matrix[2][1] * g + matrix[2][2] * b,
+        ];
+
+        imageData.data[i] = Math.min(Math.max(newR, 0), 255);
+        imageData.data[i + 1] = Math.min(Math.max(newG, 0), 255);
+        imageData.data[i + 2] = Math.min(Math.max(newB, 0), 255);
+      }
+
+      ctx.putImageData(imageData, 0, 0);
+      const newImageUrl = canvas.toDataURL();
+      setFilteredImageUrl(newImageUrl);
+    };
+  };
+  /*
   const getFilterStyle = () => {
     if (!isFilterVisible || colorblindType === "Select" || !selectedFilter) {
       return {};
     }
     // Apply your filter logic here based on selectedFilter and severity
   };
-
+  */
   const labelStyle = {
     fontSize: "16px",
     fontWeight: "500",
@@ -86,19 +176,20 @@ export default function Preview() {
         }}
       >
         <img
-          src="placeholder-image-path.jpg"
+          src={filteredImageUrl}
           alt="Preview"
           style={{
             width: "100%",
             height: "auto",
             borderRadius: "16px",
             objectFit: "cover",
-            ...getFilterStyle(),
+            ...applyFilter(),
           }}
         />
       </div>
 
       {/* Right Section: Filters and Adjustments */}
+      
       <div style={{ flex: 2, display: "flex", flexDirection: "column" }}>
         {/* Filter Section */}
         <div
