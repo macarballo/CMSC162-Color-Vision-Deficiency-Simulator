@@ -40,7 +40,7 @@ const filterInfo: { [key: string]: string } = {
 };
 
 const simulationMatrices: { [key: string]: number[][][] } = {
-  "Select": [
+  "Normal": [
     [[1.000000, 0.000000, 0.000000], [0.000000, 1.000000, 0.000000], [0.000000, 0.000000, 1.000000]],
   ],
   "Red-Weak/Protanomaly": [
@@ -70,39 +70,26 @@ const simulationMatrices: { [key: string]: number[][][] } = {
   // Add other matrices as needed
 };
 
-/*
-const simulationMatrices: { [key: string]: number[][][] } = {
-  "Red-Weak/Protanomaly": [
-    [[0.856167, 0.182038, -0.038205], [0.029342, 0.955115, 0.015544], [-0.002880, -0.001563, 1.004443]],
-    [[0.458064, 0.679578, -0.137642], [0.092785, 0.846313, 0.060902], [-0.007494, -0.016807, 1.024301]],
-    [[0.152286, 1.052583, -0.204868], [0.114503, 0.786281, 0.099216], [-0.003882, -0.048116, 1.051998]],
-  ],
-  "Green-Weak/Deuteranomaly": [
-    [[0.866435, 0.177704, -0.044139], [0.049567, 0.939063, 0.011370], [-0.003453, 0.007233, 0.996220]],
-    [[0.547494, 0.607765, -0.155259], [0.181692, 0.781742, 0.036566], [-0.010410, 0.027275, 0.983136]],
-    [[0.367322, 0.860646, -0.227968], [0.280085, 0.672501, 0.047413], [-0.011820, 0.042940, 0.968881]],
-  ],
-  "Blue-Weak/Tritanomaly": [
-    [[0.926670, 0.092514, -0.019184], [0.021191, 0.964503, 0.014306], [0.008437, 0.054813, 0.936750]],
-    [[1.017277, 0.027029, -0.044306], [-0.006113, 0.958479, 0.047634], [0.006379, 0.248708, 0.744913]],
-    [[1.255528, -0.076749, -0.178779], [-0.078411, 0.930809, 0.147602], [0.004733, 0.691367, 0.303900]],
-  ],
-  // Add other matrices as needed
-};
-*/
 
 export default function Preview() {
   const [colorblindType, setColorblindType] = useState<keyof typeof filters | "Select">("Select");
   const [selectedFilter, setSelectedFilter] = useState("");
   const [isAdjustmentsVisible, setAdjustmentsVisible] = useState(true);
-  const [severity, setSeverity] = useState(0); // Default value set to 0
-  const [isFilterVisible, setFilterVisible] = useState(true);
+  const [severity, setSeverity] = useState(100); // Default severity to 100
+  const [previousSeverity, setPreviousSeverity] = useState(100); // Store the previous severity
+  const [isFilterVisible, setFilterVisible] = useState(true); // This controls filter visibility
   const [filteredImageUrl, setFilteredImageUrl] = useState<string>(IshiharaPlate);
+  const [actualFilteredImageUrl, setActualFilteredImageUrl] = useState<string>(IshiharaPlate);
+  const [originalImageUrl, setOriginalImageUrl] = useState<string>(IshiharaPlate);
+  const [isImageVisible, setImageVisible] = useState(false);
+  const [prevFilter, setPrevFilter] = useState("");
+  const [isVisibilityOn, setVisibilityOn] = useState(true);
+  
   
   const navigate = useNavigate(); // Initialize the navigate function
   const applyFilter = () => {
     if (colorblindType === "Select" || !selectedFilter || !isFilterVisible) return;
-
+  
     const img = new Image();
     img.src = IshiharaPlate;
     img.onload = () => {
@@ -111,31 +98,75 @@ export default function Preview() {
       canvas.width = img.width;
       canvas.height = img.height;
       ctx.drawImage(img, 0, 0);
-
+  
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const matrix = simulationMatrices[selectedFilter][0];  // Always use the first matrix as severity is handled in a linear fashion
-
+      const matrix = simulationMatrices[selectedFilter]
+        ? simulationMatrices[selectedFilter][0]
+        : simulationMatrices["Normal"][0];
+  
+      // Adjust the matrix based on severity
+      const normalMatrix = simulationMatrices["Normal"][0];
+      const adjustedMatrix = matrix.map((row, i) =>
+        row.map((value, j) => normalMatrix[i][j] + (value - normalMatrix[i][j]) * (severity / 100))
+      );
+  
+      // Process the image with the adjusted matrix
       for (let i = 0; i < imageData.data.length; i += 4) {
         const r = imageData.data[i];
         const g = imageData.data[i + 1];
         const b = imageData.data[i + 2];
-
+  
         const [newR, newG, newB] = [
-          matrix[0][0] * r + matrix[0][1] * g + matrix[0][2] * b,
-          matrix[1][0] * r + matrix[1][1] * g + matrix[1][2] * b,
-          matrix[2][0] * r + matrix[2][1] * g + matrix[2][2] * b,
+          adjustedMatrix[0][0] * r + adjustedMatrix[0][1] * g + adjustedMatrix[0][2] * b,
+          adjustedMatrix[1][0] * r + adjustedMatrix[1][1] * g + adjustedMatrix[1][2] * b,
+          adjustedMatrix[2][0] * r + adjustedMatrix[2][1] * g + adjustedMatrix[2][2] * b,
         ];
-
+  
         imageData.data[i] = Math.min(Math.max(newR, 0), 255);
         imageData.data[i + 1] = Math.min(Math.max(newG, 0), 255);
         imageData.data[i + 2] = Math.min(Math.max(newB, 0), 255);
       }
-
+  
       ctx.putImageData(imageData, 0, 0);
       const newImageUrl = canvas.toDataURL();
       setFilteredImageUrl(newImageUrl);
+      setActualFilteredImageUrl(newImageUrl);
     };
   };
+
+  const toggleVisibilityIcon = () => {
+    if (severity === 0) {
+      setSeverity(previousSeverity);
+      setVisibilityOn(true);
+    } else {
+      setPreviousSeverity(severity);
+      setSeverity(0);
+      setVisibilityOn(false);
+    }
+  };
+
+  const handleSeverityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newSeverity = Number(e.target.value);
+    setSeverity(newSeverity);
+  };
+  
+  const resetVisibilityIcon = () => {
+    setVisibilityOn(true);
+    setSeverity(previousSeverity);
+  };
+
+  const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newFilter = e.target.value;
+    setSelectedFilter(newFilter);
+    setPrevFilter(newFilter);
+    setVisibilityOn(true);
+    setSeverity(100); // Reset severity when filter changes
+  };
+
+  const toggleFilterVisibility = () => {
+    setFilterVisible((prev) => !prev);
+  };
+
   /*
   const getFilterStyle = () => {
     if (!isFilterVisible || colorblindType === "Select" || !selectedFilter) {
@@ -176,7 +207,7 @@ export default function Preview() {
         }}
       >
         <img
-          src={filteredImageUrl}
+          src={isImageVisible ? actualFilteredImageUrl : filteredImageUrl} // Toggle between filtered and actual filtered image based on isImageVisible
           alt="Preview"
           style={{
             width: "100%",
@@ -189,6 +220,9 @@ export default function Preview() {
       </div>
 
       {/* Right Section: Filters and Adjustments */}
+      
+
+
       
       <div style={{ flex: 2, display: "flex", flexDirection: "column" }}>
         {/* Filter Section */}
@@ -212,14 +246,37 @@ export default function Preview() {
             <span style={{ fontFamily: "Montserrat", fontSize: "12px" }}>
               Filters
             </span>
+
+            <div>
+              <button onClick={toggleVisibilityIcon}>
+                {isVisibilityOn ? <VisibilityIcon /> : <VisibilityOffIcon />}
+              </button>
+            </div>
+
             {isFilterVisible ? (
               <VisibilityIcon
-                onClick={() => setFilterVisible(!isFilterVisible)}
+                onClick={() => {
+                  // Toggle visibility of the filter section
+                  setFilterVisible(false); // Hide filter section
+
+                  // Reset the image and filter states
+                  setFilteredImageUrl(actualFilteredImageUrl); // Show filtered image
+                  setImageVisible(true);
+                  setSelectedFilter(prevFilter); // Keep the previous filter
+                }}
                 style={{ cursor: "pointer" }}
               />
             ) : (
               <VisibilityOffIcon
-                onClick={() => setFilterVisible(!isFilterVisible)}
+                onClick={() => {
+                  // Toggle visibility of the filter section
+                  setFilterVisible(true); // Show filter section
+
+                  // Reset the image to original state when filters are hidden
+                  setFilteredImageUrl(originalImageUrl); // Show original image
+                  setImageVisible(false);
+                  setSelectedFilter(""); // Clear the selected filter
+                }}
                 style={{ cursor: "pointer" }}
               />
             )}
@@ -274,7 +331,7 @@ export default function Preview() {
                 type="radio"
                 value={filter}
                 checked={selectedFilter === filter}
-                onChange={() => setSelectedFilter(filter)}
+                onChange={() => {setSelectedFilter(filter); setPrevFilter(filter); setSeverity(100);setPreviousSeverity(100)}}
                 style={{ marginRight: "8px" }}
               />
               {filter}
@@ -327,13 +384,12 @@ export default function Preview() {
                   min="0"
                   max="100"
                   value={severity}
-                  onChange={(e) => setSeverity(parseInt(e.target.value))}
+                  onChange={handleSeverityChange}
                   style={{
                     width: "100%",
                     appearance: "none",
                     height: "8px",
                     borderRadius: "4px",
-                    background: `linear-gradient(to right, blue ${severity}%, #ccc ${severity}%)`,
                   }}
                 />
                 <span style={{ marginLeft: "10px", fontFamily: "Montserrat, sans-serif" }}>{severity}</span>
@@ -346,10 +402,16 @@ export default function Preview() {
         <div style={{ display: "flex", justifyContent: "flex-end" }}>
           <button
             onClick={() => {
+              setFilteredImageUrl(originalImageUrl); // Reset the image to original
+              setColorblindType("Select"); // Reset the filter selection
+              setSelectedFilter(""); // Reset selected filter
+              setSeverity(0);
+              /*
               setColorblindType("Select");
               setSelectedFilter("");
               setSeverity(0); // Reset severity to 0
               setFilterVisible(true);
+              */
             }}
             style={{
               maxWidth: "140px",
