@@ -105,6 +105,36 @@ export default function Preview() {
   const [filteredImageUrl, setFilteredImageUrl] = useState<string>(IshiharaPlate);
   
   const navigate = useNavigate(); // Initialize the navigate function
+<<<<<<< HEAD
+=======
+  const handleNewImageClick = () => {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    fileInput.onchange = handleFileUpload;
+    fileInput.click(); // Trigger the file input dialog
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (reader.result) {
+          const uploadedImage = reader.result.toString();
+          setOriginalImageUrl(uploadedImage);
+          setFilteredImageUrl(uploadedImage);
+          setActualFilteredImageUrl(uploadedImage);
+          setColorblindType("Select");
+          setSelectedFilter("");
+          setSeverity(100);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+>>>>>>> origin/devsatoritest
   const applyFilter = () => {
     if (colorblindType === "Select" || !selectedFilter || !isFilterVisible) return;
   
@@ -173,6 +203,7 @@ export default function Preview() {
       }}
     >
       {/* Left Section: Image */}
+<<<<<<< HEAD
       <div
         style={{
           flex: 3,
@@ -181,6 +212,10 @@ export default function Preview() {
           overflow: "hidden",
         }}
       >
+=======
+      <div style={{ display: "flex", flexDirection: "column", padding: "20px" }}>
+      {/* Image Upload */}
+>>>>>>> origin/devsatoritest
         <img
           src={filteredImageUrl}
           alt="Preview"
@@ -500,7 +535,11 @@ export default function Preview() {
               fontFamily: "Montserrat, sans-serif",
               marginRight: "16px", 
             }}
+<<<<<<< HEAD
             
+=======
+            onClick={handleNewImageClick}
+>>>>>>> origin/devsatoritest
           >
             <AddIcon style={{ marginRight: "8px" }} />
             New
