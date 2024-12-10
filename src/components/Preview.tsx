@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { saveAs } from "file-saver"; 
+import UploadWindow from './UploadWindow'; // Import the UploadWindow component
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import ReplayIcon from '@mui/icons-material/Replay';
@@ -10,6 +11,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import LinkIcon from '@mui/icons-material/Link';
 import AddIcon from '@mui/icons-material/Add';
 import GetAppIcon from '@mui/icons-material/GetApp';
+import './UploadWindow.css';
 
 const filters: { [key: string]: string[] } = {
   "Anomalous Trichromacy": [
@@ -70,22 +72,32 @@ const simulationMatrices: { [key: string]: number[][][] } = {
 };
 
 export default function Preview() {
-  const navigate = useNavigate();
   const location = useLocation();
-  const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [colorblindType, setColorblindType] = useState<keyof typeof filters | "Select">("Select");
   const [selectedFilter, setSelectedFilter] = useState("");
   const [isAdjustmentsVisible, setAdjustmentsVisible] = useState(true);
   const [severity, setSeverity] = useState(0); 
   const [isFilterVisible, setFilterVisible] = useState(true);
   const [filteredImageUrl, setFilteredImageUrl] = useState<string | null>(null);
+  const [showUploadWindow, setShowUploadWindow] = useState(false); // State to control the upload window visibility
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
 
+  // Automatically open the upload window when the page loads
   useEffect(() => {
-    if (location.state && location.state.fileURL) {
+    if (!location.state || !location.state.fileURL) {
+      setShowUploadWindow(true); // Ensure the upload window is visible
+    } else {
       setImageSrc(location.state.fileURL);
     }
   }, [location.state]);
 
+  const handleFileSelect = (file: File) => {
+    const fileURL = URL.createObjectURL(file);
+    setShowUploadWindow(false); // Close the upload window after selecting the file
+    setImageSrc(fileURL); // Set the raw image source for display
+    setFilteredImageUrl(null); // Reset the filtered image URL
+  };
+  
   const applyFilter = () => {
     if (colorblindType === "Select" || !selectedFilter || !isFilterVisible) return;
 
@@ -163,6 +175,37 @@ export default function Preview() {
         fontFamily: "Montserrat, sans-serif",
       }}
     >
+
+    {/* Add overlay when the upload window is visible */}
+    {showUploadWindow && <div className="overlay"></div>}
+
+      {/* Upload window */}
+      {showUploadWindow && (
+        <div
+          className="upload-window show"
+          style={{
+            position: "absolute", // Use absolute positioning
+            top: "50%", // Center vertically
+            left: "50%", // Center horizontally
+            transform: "translate(-50%, -50%)", // Offset by half the width and height
+            zIndex: 9999, // Ensure it appears above other content
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            padding: "20px",
+            backgroundColor: "#FFFFFF", // Background color
+            borderRadius: "16px",
+            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.25)", // Add shadow for better visibility
+          }}
+        >
+          <UploadWindow
+            onClose={() => setShowUploadWindow(false)}
+            onFileSelect={handleFileSelect}
+          />
+        </div>
+      )}
+      
       {/* Left Section: Image */}
       <div
         style={{
@@ -170,20 +213,34 @@ export default function Preview() {
           marginRight: "20px",
           borderRadius: "16px",
           overflow: "hidden",
+          display: "flex", // Ensures proper alignment
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "#F2F2F2", // Neutral background
+          height: "500px", // Set a fixed height for the container
         }}
       >
-        {filteredImageUrl ? (
+        {imageSrc ? (
           <img
-            src={filteredImageUrl}
-            alt="Preview"
+            src={filteredImageUrl || imageSrc} // Display filtered image or raw image
+            alt="Uploaded Preview"
             style={{
-              width: "100%",
-              height: "auto",
+              maxWidth: "100%", // Ensures image fits horizontally
+              maxHeight: "100%", // Ensures image fits vertically
+              objectFit: "contain", // Preserve aspect ratio
               borderRadius: "16px",
             }}
           />
         ) : (
-          <div>Loading image...</div>
+          <div
+            style={{
+              color: "#999",
+              fontFamily: "Montserrat, sans-serif",
+              textAlign: "center",
+            }}
+          >
+            No image uploaded yet. Please upload an image.
+          </div>
         )}
       </div>
 
@@ -443,7 +500,11 @@ export default function Preview() {
         {/* New and Export Buttons */}
         <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "16px" }}>
           <button
-          onClick={() => navigate('/')}
+            onClick={() => {
+              setShowUploadWindow(true); // Show the upload window
+              setImageSrc(null); // Clear the current image if necessary
+            }}
+            // onClick={() => navigate('/')}
             style={{
               maxWidth: "140px",
               maxHeight: "52px",

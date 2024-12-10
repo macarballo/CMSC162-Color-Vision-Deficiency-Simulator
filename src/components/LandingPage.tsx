@@ -1,19 +1,11 @@
 import handsImage from '../assets/hands.png';
 import { useState } from 'react';
-import UploadWindow from './UploadWindow';
 import { useNavigate } from 'react-router-dom';
 import './LandingPage.css';
 
 const LandingPage: React.FC = () => {
   const [isHovered, setIsHovered] = useState(false);
-  const [showUploadWindow, setShowUploadWindow] = useState(false);
   const navigate = useNavigate();
-
-  const handleFileSelect = (file: File) => {
-    const fileURL = URL.createObjectURL(file);
-    setShowUploadWindow(false); // Hide upload window after file selection
-    navigate('/preview', { state: { fileURL } }); // Navigate to Preview page with the file URL
-  };
 
   return (
     <div className="landing-page-container">
@@ -24,16 +16,10 @@ const LandingPage: React.FC = () => {
         className={`landing-page-button ${isHovered ? 'hovered' : ''}`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        onClick={() => setShowUploadWindow(true)}
+        onClick={() => navigate('/preview')}
       >
         Get Started
       </button>
-
-      {showUploadWindow && (
-        <div className="upload-window show">
-          <UploadWindow onClose={() => setShowUploadWindow(false)} onFileSelect={handleFileSelect} />
-        </div>
-      )}
 
       <div className="landing-page-image-container">
         <img
