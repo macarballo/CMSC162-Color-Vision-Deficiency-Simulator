@@ -88,7 +88,7 @@ const UploadWindow: React.FC<UploadWindowProps> = ({ onClose, onFileSelect }) =>
             onChange={handleFileChange}
             accept={acceptedImageTypes.join(',')} // Restrict file types in the file picker dialog
           />
-          <button className="uploadButton">Upload</button>
+          {/* <button className="uploadButton">Upload</button> */}
         </div>
       </div>
     </div>
