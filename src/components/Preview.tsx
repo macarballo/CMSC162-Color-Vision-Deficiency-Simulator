@@ -11,6 +11,7 @@ import GetAppIcon from '@mui/icons-material/GetApp';
 import { useNavigate } from 'react-router-dom'; // Import the useNavigate hook
 import IshiharaPlate from '../assets/Ishihara_Plate_3.jpg'
 
+
 const filters: { [key: string]: string[] } = {
   "Anomalous Trichromacy": [
     "Red-Weak/Protanomaly",
@@ -86,12 +87,33 @@ export default function Preview() {
   const [isVisibilityOn, setVisibilityOn] = useState(true);
   
   
+  
   const navigate = useNavigate(); // Initialize the navigate function
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (reader.result) {
+          const uploadedImage = reader.result.toString();
+          setOriginalImageUrl(uploadedImage);
+          setFilteredImageUrl(uploadedImage);
+          setActualFilteredImageUrl(uploadedImage);
+          setColorblindType("Select");
+          setSelectedFilter("");
+          setSeverity(100);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const applyFilter = () => {
     if (colorblindType === "Select" || !selectedFilter || !isFilterVisible) return;
   
     const img = new Image();
-    img.src = IshiharaPlate;
+    img.src = originalImageUrl;
     img.onload = () => {
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d")!;
@@ -198,14 +220,14 @@ export default function Preview() {
       }}
     >
       {/* Left Section: Image */}
-      <div
-        style={{
-          flex: 3,
-          marginRight: "20px",
-          borderRadius: "16px",
-          overflow: "hidden",
-        }}
-      >
+      <div style={{ display: "flex", flexDirection: "column", padding: "20px" }}>
+      {/* Image Upload */}
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handleFileUpload}
+        style={{ marginBottom: "20px" }}
+      />
         <img
           src={isImageVisible ? actualFilteredImageUrl : filteredImageUrl} // Toggle between filtered and actual filtered image based on isImageVisible
           alt="Preview"
