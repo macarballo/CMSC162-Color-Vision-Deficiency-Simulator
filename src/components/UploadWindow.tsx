@@ -4,10 +4,18 @@ import closeIcon from '../assets/close_icon.png';
 
 interface UploadWindowProps {
   onClose: () => void;
+  onFileSelect: (file: File) => void; // Add prop for file selection
 }
 
-const UploadWindow: React.FC<UploadWindowProps> = ({ onClose }) => {
+const UploadWindow: React.FC<UploadWindowProps> = ({ onClose, onFileSelect }) => {
   const [isDragging, setIsDragging] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const acceptedImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
+
+  const validateFile = (file: File): boolean => {
+    return acceptedImageTypes.includes(file.type);
+  };
 
   const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -24,7 +32,26 @@ const UploadWindow: React.FC<UploadWindowProps> = ({ onClose }) => {
 
     const files = event.dataTransfer.files;
     if (files && files.length > 0) {
-      console.log(files[0]); // Handle the file upload here
+      const file = files[0];
+      if (validateFile(file)) {
+        onFileSelect(file); // Pass the file to parent component
+        setErrorMessage('');
+      } else {
+        setErrorMessage('Please upload a valid image file (JPEG, PNG, GIF).');
+      }
+    }
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      if (validateFile(file)) {
+        onFileSelect(file); // Pass the file to parent component
+        setErrorMessage('');
+      } else {
+        setErrorMessage('Please select a valid image file (JPEG, PNG, GIF).');
+      }
     }
   };
 
@@ -49,13 +76,20 @@ const UploadWindow: React.FC<UploadWindowProps> = ({ onClose }) => {
 
         <div>
           <p style={styles.uploadText}>Drag or Drop Your Photo Here!</p>
+          {errorMessage && <p style={styles.errorText}>{errorMessage}</p>}
         </div>
 
         <div style={styles.uploadButtonsContainer}>
           <button onClick={() => document.getElementById('fileInput')!.click()} style={styles.chooseFileButton}>
             Choose File
           </button>
-          <input type="file" id="fileInput" style={{ display: 'none' }} />
+          <input
+            type="file"
+            id="fileInput"
+            style={{ display: 'none' }}
+            onChange={handleFileChange}
+            accept={acceptedImageTypes.join(',')} // Restrict file types in the file picker dialog
+          />
           <button style={styles.uploadButton}>Upload</button>
         </div>
       </div>
@@ -77,12 +111,12 @@ const styles = {
   },
   uploadWindow: {
     width: '710.06px',
-    height: '562.72px', 
-    background: 'white', 
-    padding: '27px', 
-    borderRadius: '26.58px', 
-    boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)', 
-    textAlign: 'center' as 'center', 
+    height: '562.72px',
+    background: 'white',
+    padding: '27px',
+    borderRadius: '26.58px',
+    boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
+    textAlign: 'center' as 'center',
     position: 'relative' as 'relative',
   },
   header: {
@@ -94,37 +128,42 @@ const styles = {
     cursor: 'pointer',
   },
   uploadContent: {
-    width: '710.06px', 
-    height: '365.14px', 
-    borderRadius: '13.29px', 
-    border: '0.73px dashed #656F77', 
-    margin: '27px 0', 
-    background: '#E8EEF3', 
-    gap: '16px', 
-    display: 'flex', 
-    alignItems: 'center', 
+    width: '710.06px',
+    height: '365.14px',
+    borderRadius: '13.29px',
+    border: '0.73px dashed #656F77',
+    margin: '27px 0',
+    background: '#E8EEF3',
+    gap: '16px',
+    display: 'flex',
+    alignItems: 'center',
     justifyContent: 'center',
   },
   uploadIcon: {
-    width: '159.75px', 
-    height: '155.18px', 
-    marginBottom: '10px', 
+    width: '159.75px',
+    height: '155.18px',
+    marginBottom: '10px',
     textAlign: 'center' as 'center',
   },
   uploadText: {
     fontFamily: 'Montserrat',
     fontWeight: 700,
-    fontSize: '32.13px', 
-    color: '#656F77', 
-    lineHeight: '35px', 
+    fontSize: '32.13px',
+    color: '#656F77',
+    lineHeight: '35px',
     textAlign: 'center' as 'center',
+  },
+  errorText: {
+    color: 'red',
+    fontSize: '14px',
+    marginTop: '10px',
   },
   uploadButtonsContainer: {
     display: 'flex',
     justifyContent: 'center',
     width: '710.06px',
     gap: '26.58px',
-    marginTop: "-3px"
+    marginTop: '-3px',
   },
   chooseFileButton: {
     backgroundColor: 'white',
@@ -138,7 +177,7 @@ const styles = {
     fontSize: '23.26px',
     lineHeight: '26.58px',
     textAlign: 'center' as 'center',
-    width: "340.53px",
+    width: '340.53px',
   },
   uploadButton: {
     backgroundColor: '#4E6AF0',
@@ -152,7 +191,7 @@ const styles = {
     fontSize: '23.26px',
     lineHeight: '26.58px',
     textAlign: 'center' as 'center',
-    width: "340.53px",
+    width: '340.53px',
   },
 };
 

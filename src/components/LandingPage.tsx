@@ -1,11 +1,18 @@
-// src/components/LandingPage.tsx
 import handsImage from '../assets/hands.png';
 import { useState } from 'react';
 import UploadWindow from './UploadWindow';
+import Preview from './Preview';
+import './LandingPage.css'; // Import the CSS file for transitions
 
 const LandingPage: React.FC = () => {
   const [isHovered, setIsHovered] = useState(false);
   const [showUploadWindow, setShowUploadWindow] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  const handleFileSelect = (file: File) => {
+    setSelectedFile(file);
+    setShowUploadWindow(false); // Hide upload window after file selection
+  };
 
   return (
     <div
@@ -70,7 +77,17 @@ const LandingPage: React.FC = () => {
         Get Started
       </button>
 
-      {showUploadWindow && <UploadWindow onClose={() => setShowUploadWindow(false)} />}
+      {showUploadWindow && (
+        <div className={`upload-window show`}>
+          <UploadWindow onClose={() => setShowUploadWindow(false)} onFileSelect={handleFileSelect} />
+        </div>
+      )}
+
+      {selectedFile && (
+        <div style={{ marginTop: '20px', width: '100%' }}>
+          <Preview file={selectedFile} />
+        </div>
+      )}
 
       <div
         style={{

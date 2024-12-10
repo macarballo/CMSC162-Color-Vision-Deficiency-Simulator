@@ -8,6 +8,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import LinkIcon from '@mui/icons-material/Link';
 import AddIcon from '@mui/icons-material/Add'; 
 import GetAppIcon from '@mui/icons-material/GetApp'; 
+import { useNavigate } from 'react-router-dom'; // Import the useNavigate hook
 
 const filters: { [key: string]: string[] } = {
   "Anomalous Trichromacy": [
@@ -44,6 +45,8 @@ export default function Preview() {
   const [severity, setSeverity] = useState(0); // Default value set to 0
   const [isFilterVisible, setFilterVisible] = useState(true);
   
+  const navigate = useNavigate(); // Initialize the navigate function
+
   const getFilterStyle = () => {
     if (!isFilterVisible || colorblindType === "Select" || !selectedFilter) {
       return {};
@@ -368,6 +371,7 @@ export default function Preview() {
               fontFamily: "Montserrat, sans-serif",
               marginRight: "16px", 
             }}
+            onClick={() => navigate('/')}
           >
             <AddIcon style={{ marginRight: "8px" }} />
             New
