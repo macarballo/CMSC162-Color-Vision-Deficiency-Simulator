@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from 'react-router-dom';
+import { saveAs } from "file-saver"; 
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import ReplayIcon from '@mui/icons-material/Replay';
@@ -6,8 +8,8 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import InfoIcon from '@mui/icons-material/Info';
 import LinkIcon from '@mui/icons-material/Link';
-import AddIcon from '@mui/icons-material/Add'; 
-import GetAppIcon from '@mui/icons-material/GetApp'; 
+import AddIcon from '@mui/icons-material/Add';
+import GetAppIcon from '@mui/icons-material/GetApp';
 
 const filters: { [key: string]: string[] } = {
   "Anomalous Trichromacy": [
@@ -37,20 +39,108 @@ const filterInfo: { [key: string]: string } = {
   "Blue Cone Monochromacy": "Blue Cone Monochromacy is a condition where only blue cones function, leading to limited color vision.",
 };
 
+const simulationMatrices: { [key: string]: number[][][] } = {
+  "Select": [
+    [[1.000000, 0.000000, 0.000000], [0.000000, 1.000000, 0.000000], [0.000000, 0.000000, 1.000000]],
+  ],
+  "Red-Weak/Protanomaly": [
+    [[0.816670, 0.183330, 0.000000], [0.333330, 0.666670, 0.000000], [0.000000, 0.125000, 0.875000]],
+  ],
+  "Green-Weak/Deuteranomaly": [
+    [[0.800000, 0.200000, 0.000000], [0.258330, 0.741670, 0.000000], [0.000000, 0.141670, 0.858330]],
+  ],
+  "Blue-Weak/Tritanomaly": [
+    [[0.966670, 0.033330, 0.000000], [0.000000, 0.733330, 0.266670], [0.000000, 0.183330, 0.816670]],
+  ],
+  "Red-Blind/Protanopia": [
+    [[0.566670, 0.433330, 0.000000], [0.558330, 0.441670, 0.000000], [0.000000, 0.241670, 0.758330]],
+  ],
+  "Green-Blind/Deuteranopia": [
+    [[0.625000, 0.375000, 0.000000], [0.700000, 0.300000, 0.000000], [0.000000, 0.300000, 0.700000]],
+    ],
+  "Blue-Blind/Tritanopia": [
+    [[0.950000, 0.050000, 0.000000], [0.000000, 0.433330, 0.566670], [0.000000, 0.475000, 0.525000]],
+  ],
+  "Monochromacy/Achromatopsia": [
+    [[0.299000, 0.587000, 0.114000], [0.299000, 0.587000, 0.114000], [0.299000, 0.587000, 0.114000]],
+  ],
+  "Blue Cone Monochromacy": [
+    [[0.618000, 0.320000, 0.062000], [0.163000, 0.775000, 0.062000], [0.163000, 0.320000, 0.516000]],
+  ],
+};
+
 export default function Preview() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [colorblindType, setColorblindType] = useState<keyof typeof filters | "Select">("Select");
   const [selectedFilter, setSelectedFilter] = useState("");
   const [isAdjustmentsVisible, setAdjustmentsVisible] = useState(true);
-  const [severity, setSeverity] = useState(0); // Default value set to 0
+  const [severity, setSeverity] = useState(0); 
   const [isFilterVisible, setFilterVisible] = useState(true);
-  
-  const getFilterStyle = () => {
-    if (!isFilterVisible || colorblindType === "Select" || !selectedFilter) {
-      return {};
+  const [filteredImageUrl, setFilteredImageUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (location.state && location.state.fileURL) {
+      setImageSrc(location.state.fileURL);
     }
-    // Apply your filter logic here based on selectedFilter and severity
+  }, [location.state]);
+
+  const applyFilter = () => {
+    if (colorblindType === "Select" || !selectedFilter || !isFilterVisible) return;
+
+    const img = new Image();
+    img.src = imageSrc!;
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d")!;
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const matrix = simulationMatrices[selectedFilter][0]; 
+
+      for (let i = 0; i < imageData.data.length; i += 4) {
+        const r = imageData.data[i];
+        const g = imageData.data[i + 1];
+        const b = imageData.data[i + 2];
+
+        const [newR, newG, newB] = [
+          matrix[0][0] * r + matrix[0][1] * g + matrix[0][2] * b,
+          matrix[1][0] * r + matrix[1][1] * g + matrix[1][2] * b,
+          matrix[2][0] * r + matrix[2][1] * g + matrix[2][2] * b,
+        ];
+
+        imageData.data[i] = Math.min(Math.max(newR, 0), 255);
+        imageData.data[i + 1] = Math.min(Math.max(newG, 0), 255);
+        imageData.data[i + 2] = Math.min(Math.max(newB, 0), 255);
+      }
+
+      ctx.putImageData(imageData, 0, 0);
+      const newImageUrl = canvas.toDataURL();
+      setFilteredImageUrl(newImageUrl);
+    };
   };
 
+  useEffect(() => {
+    if (imageSrc) {
+      applyFilter();
+    }
+  }, [imageSrc, colorblindType, selectedFilter, severity, isFilterVisible]);
+
+  // Add this function to handle the export logic
+  const exportImage = () => {
+    if (!filteredImageUrl || !imageSrc) return;
+
+    // Extract the file name and extension from the original image
+    const fileName = imageSrc.split("/").pop()?.split(".")[0] || "image";
+    const fileExtension = imageSrc.split(".").pop() || "png";
+
+    // Trigger the download using file-saver
+    saveAs(filteredImageUrl, `${fileName}_filtered.${fileExtension}`);
+  };
+  
   const labelStyle = {
     fontSize: "16px",
     fontWeight: "500",
@@ -82,20 +172,23 @@ export default function Preview() {
           overflow: "hidden",
         }}
       >
-        <img
-          src="placeholder-image-path.jpg"
-          alt="Preview"
-          style={{
-            width: "100%",
-            height: "auto",
-            borderRadius: "16px",
-            objectFit: "cover",
-            ...getFilterStyle(),
-          }}
-        />
+        {filteredImageUrl ? (
+          <img
+            src={filteredImageUrl}
+            alt="Preview"
+            style={{
+              width: "100%",
+              height: "auto",
+              borderRadius: "16px",
+            }}
+          />
+        ) : (
+          <div>Loading image...</div>
+        )}
       </div>
 
       {/* Right Section: Filters and Adjustments */}
+      
       <div style={{ flex: 2, display: "flex", flexDirection: "column" }}>
         {/* Filter Section */}
         <div
@@ -350,6 +443,7 @@ export default function Preview() {
         {/* New and Export Buttons */}
         <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "16px" }}>
           <button
+          onClick={() => navigate('/')}
             style={{
               maxWidth: "140px",
               maxHeight: "52px",
@@ -368,11 +462,13 @@ export default function Preview() {
               fontFamily: "Montserrat, sans-serif",
               marginRight: "16px", 
             }}
+            
           >
             <AddIcon style={{ marginRight: "8px" }} />
             New
           </button>
           <button
+            onClick={exportImage}
             style={{
               maxWidth: "140px",
               maxHeight: "52px",
