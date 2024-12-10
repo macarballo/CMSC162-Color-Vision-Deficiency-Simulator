@@ -89,6 +89,13 @@ export default function Preview() {
   
   
   const navigate = useNavigate(); // Initialize the navigate function
+  const handleNewImageClick = () => {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    fileInput.onchange = handleFileUpload;
+    fileInput.click(); // Trigger the file input dialog
+  };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -222,12 +229,6 @@ export default function Preview() {
       {/* Left Section: Image */}
       <div style={{ display: "flex", flexDirection: "column", padding: "20px" }}>
       {/* Image Upload */}
-      <input
-        type="file"
-        accept="image/*"
-        onChange={handleFileUpload}
-        style={{ marginBottom: "20px" }}
-      />
         <img
           src={isImageVisible ? actualFilteredImageUrl : filteredImageUrl} // Toggle between filtered and actual filtered image based on isImageVisible
           alt="Preview"
@@ -546,7 +547,7 @@ export default function Preview() {
               fontFamily: "Montserrat, sans-serif",
               marginRight: "16px", 
             }}
-            onClick={() => navigate('/')}
+            onClick={handleNewImageClick}
           >
             <AddIcon style={{ marginRight: "8px" }} />
             New
