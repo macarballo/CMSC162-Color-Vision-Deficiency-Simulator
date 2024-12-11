@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-import { useNavigate } from 'react-router-dom'; 
-import { saveAs } from 'file-saver';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import ReplayIcon from '@mui/icons-material/Replay';
@@ -9,8 +7,8 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import InfoIcon from '@mui/icons-material/Info';
 import LinkIcon from '@mui/icons-material/Link';
 import AddIcon from '@mui/icons-material/Add'; 
-import GetAppIcon from '@mui/icons-material/GetApp'; 
 
+// Predefined filters and corresponding descriptions for different colorblindness conditions
 const filters: { [key: string]: string[] } = {
   "Anomalous Trichromacy": [
     "Red-Weak/Protanomaly",
@@ -28,6 +26,7 @@ const filters: { [key: string]: string[] } = {
   ],
 };
 
+// Information for each filter, describing the type of colorblindness
 const filterInfo: { [key: string]: string } = {
   "Red-Weak/Protanomaly": "Protanomaly is a type of red-green color blindness where red cones do not detect enough red and are too sensitive to greens, yellows, and oranges.",
   "Green-Weak/Deuteranomaly": "Deuteranomaly is a type of red-green color blindness where green cones do not detect enough green and are too sensitive to yellows, oranges, and reds.",
@@ -39,6 +38,7 @@ const filterInfo: { [key: string]: string } = {
   "Blue Cone Monochromacy": "Blue Cone Monochromacy is a condition where only blue cones function, leading to limited color vision.",
 };
 
+// Simulation matrices for each type of colorblindness condition
 const simulationMatrices: { [key: string]: number[][][] } = {
   "Normal": [
     [[1.000000, 0.000000, 0.000000], [0.000000, 1.000000, 0.000000], [0.000000, 0.000000, 1.000000]],
@@ -67,10 +67,11 @@ const simulationMatrices: { [key: string]: number[][][] } = {
   "Blue Cone Monochromacy": [
     [[0.618000, 0.320000, 0.062000], [0.163000, 0.775000, 0.062000], [0.163000, 0.320000, 0.516000]],
   ],
-  // Add other matrices as needed
 };
 
+// Main component for handling the preview of colorblindness simulations
 export default function Preview() {
+  // State variables to control colorblindness filter settings and image state
   const [colorblindType, setColorblindType] = useState<keyof typeof filters | "Select">("Select");
   const [selectedFilter, setSelectedFilter] = useState("");
   const [isAdjustmentsVisible, setAdjustmentsVisible] = useState(true);
@@ -84,6 +85,7 @@ export default function Preview() {
   const [isVisibilityOn, setVisibilityOn] = useState(true);
   const [filteredImageUrl, setFilteredImageUrl] = useState<string>("");
 
+  // Function to handle a new image upload
   const handleNewImageClick = () => {
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
@@ -92,6 +94,7 @@ export default function Preview() {
     fileInput.click(); // Trigger the file input dialog
   };
 
+  // Function to handle the file input event when an image is uploaded
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -102,44 +105,46 @@ export default function Preview() {
           setOriginalImageUrl(uploadedImage);
           setFilteredImageUrl(uploadedImage);
           setActualFilteredImageUrl(uploadedImage);
-          setColorblindType("Select");
-          setSelectedFilter("");
-          setSeverity(100);
+          setColorblindType("Select"); // Reset colorblindness type after image upload
+          setSelectedFilter(""); // Reset selected filter
+          setSeverity(100); // Reset severity to default
         }
       };
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(file); // Read the uploaded file as a data URL
     }
   };
 
+  // Function to apply the selected colorblindness filter on the image
   const applyFilter = () => {
     if (colorblindType === "Select" || !selectedFilter || !isFilterVisible) return;
   
     const img = new Image();
-    img.src = originalImageUrl;
+    img.src = originalImageUrl; // Set the image source
     img.onload = () => {
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d")!;
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx.drawImage(img, 0, 0);
+      canvas.width = img.width; // Set the canvas width
+      canvas.height = img.height; // Set the canvas height
+      ctx.drawImage(img, 0, 0); // Draw the image on the canvas
   
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const matrix = simulationMatrices[selectedFilter]
         ? simulationMatrices[selectedFilter][0]
-        : simulationMatrices["Normal"][0];
-  
-      // Adjust the matrix based on severity
+        : simulationMatrices["Normal"][0]; // Get the corresponding simulation matrix for the filter
+
+      // Adjust the matrix based on the severity of the colorblindness
       const normalMatrix = simulationMatrices["Normal"][0];
       const adjustedMatrix = matrix.map((row, i) =>
         row.map((value, j) => normalMatrix[i][j] + (value - normalMatrix[i][j]) * (severity / 100))
       );
   
-      // Process the image with the adjusted matrix
+      // Process each pixel in the image data using the adjusted matrix
       for (let i = 0; i < imageData.data.length; i += 4) {
-        const r = imageData.data[i];
-        const g = imageData.data[i + 1];
-        const b = imageData.data[i + 2];
-  
+        const r = imageData.data[i]; // Red channel
+        const g = imageData.data[i + 1]; // Green channel
+        const b = imageData.data[i + 2]; // Blue channel
+        
+        // Apply the adjusted matrix to each color channel (RGB)
         const [newR, newG, newB] = [
           adjustedMatrix[0][0] * r + adjustedMatrix[0][1] * g + adjustedMatrix[0][2] * b,
           adjustedMatrix[1][0] * r + adjustedMatrix[1][1] * g + adjustedMatrix[1][2] * b,
@@ -158,36 +163,53 @@ export default function Preview() {
     };
   };
 
+  // Function to toggle the visibility of the image and reset the severity value
   const toggleVisibilityIcon = () => {
+    // Check if the severity is set to 0 (indicating no filter applied)
     if (severity === 0) {
+      // If severity is 0, restore the previous severity and set visibility to true
       setSeverity(previousSeverity);
       setVisibilityOn(true);
     } else {
+      // If severity is not 0, save the current severity to restore later,
+      // set severity to 0 (to hide the effect), and set visibility to false
       setPreviousSeverity(severity);
       setSeverity(0);
       setVisibilityOn(false);
     }
   };
 
+  // Function to handle the change in severity level from the input slider
   const handleSeverityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Convert the input value to a number and set it as the new severity level
     const newSeverity = Number(e.target.value);
     setSeverity(newSeverity);
   };
-  
+
+  // Function to reset the visibility icon and restore the previous severity value
   const resetVisibilityIcon = () => {
+    // Set visibility back to true and restore the previous severity level
     setVisibilityOn(true);
     setSeverity(previousSeverity);
   };
 
+  // Function to handle the change in the selected filter from the dropdown menu
   const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    // Get the selected filter value
     const newFilter = e.target.value;
+    
+    // Set the selected filter and save the previous filter for potential future use
     setSelectedFilter(newFilter);
     setPrevFilter(newFilter);
+
+    // Set visibility to true and reset severity to 100 when a new filter is selected
     setVisibilityOn(true);
-    setSeverity(100); // Reset severity when filter changes
+    setSeverity(100); // Reset severity to maximum when changing filters
   };
 
+  // Function to toggle the visibility of the filter options
   const toggleFilterVisibility = () => {
+    // Toggle the visibility state of the filter options
     setFilterVisible((prev) => !prev);
   };
 
@@ -298,21 +320,21 @@ export default function Preview() {
             <select
               value={colorblindType}
               onChange={(e) => {
-          setColorblindType(e.target.value as keyof typeof filters | "Select");
-          setSelectedFilter(""); // Reset selected filter when type changes
+                setColorblindType(e.target.value as keyof typeof filters | "Select");
+                setSelectedFilter(""); // Reset selected filter when type changes
               }}
               style={{
-          width: "100%",
-          padding: "10px",
-          borderRadius: "8px",
-          border: "1px solid #ccc",
-          marginTop: "16px",
-          marginBottom: "16px",
-          fontFamily: "Montserrat, sans-serif",
-          paddingLeft: "16px",
-          appearance: "none",
-          WebkitAppearance: "none",
-          MozAppearance: "none",
+                width: "100%",
+                padding: "10px",
+                borderRadius: "8px",
+                border: "1px solid #ccc",
+                marginTop: "16px",
+                marginBottom: "16px",
+                fontFamily: "Montserrat, sans-serif",
+                paddingLeft: "16px",
+                appearance: "none",
+                WebkitAppearance: "none",
+                MozAppearance: "none",
               }}
             >
               <option value="Select">Select</option>
@@ -416,12 +438,6 @@ export default function Preview() {
               setColorblindType("Select"); // Reset the filter selection
               setSelectedFilter(""); // Reset selected filter
               setSeverity(0);
-              /*
-              setColorblindType("Select");
-              setSelectedFilter("");
-              setSeverity(0); // Reset severity to 0
-              setFilterVisible(true);
-              */
             }}
             style={{
               maxWidth: "140px",

@@ -1,97 +1,45 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import handsImage from '../assets/hands.png';
-import './LandingPage.css'; // Import the CSS file for transitions
+import { useState } from 'react'; // Importing React's useState hook for managing component state
+import { useNavigate } from 'react-router-dom'; // Importing the useNavigate hook for navigation
+import handsImage from '../assets/hands.png'; // Importing the image for the landing page illustration
+import './LandingPage.css'; // Import the CSS file for styling and transitions
 
 const LandingPage: React.FC = () => {
+  // State to track whether the button is hovered
   const [isHovered, setIsHovered] = useState(false);
-  const navigate = useNavigate(); // Hook for navigation
+
+  // Initialize the navigate hook for programmatic navigation
+  const navigate = useNavigate();
 
   return (
-    <div
-      style={{
-        backgroundColor: 'white',
-        width: '100%',
-        height: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '20px',
-        boxSizing: 'border-box',
-        marginTop: '40px',
-      }}
-    >
-      <h1
-        style={{
-          fontFamily: 'Montserrat',
-          fontSize: '10vw',
-          fontWeight: 'bold',
-          margin: '0',
-          textAlign: 'center',
-        }}
-      >
-        Chromify
-      </h1>
-      <p
-        style={{
-          fontFamily: 'Montserrat',
-          fontSize: '1.9vw',
-          fontWeight: 'bold',
-          margin: '16px 0',
-          textAlign: 'center',
-        }}
-      >
-        Empathy through every hue.
-      </p>
+    <div className="landing-page-container">
+      {/* Title of the landing page */}
+      <h1 className="landing-page-title">Chromify</h1>
 
+      {/* Subtitle of the landing page */}
+      <p className="landing-page-subtitle">Empathy through every hue.</p>
+
+      {/* Button that changes style on hover and navigates to the PreviewPage */}
       <button
-        style={{
-          backgroundColor: isHovered ? 'transparent' : '#4E6AF0',
-          color: isHovered ? '#4E6AF0' : 'white',
-          border: `2px solid ${isHovered ? '#4E6AF0' : 'transparent'}`,
-          borderRadius: '4px',
-          padding: '16px 20px',
-          fontFamily: 'Montserrat',
-          fontSize: '16px',
-          fontWeight: '600',
-          cursor: 'pointer',
-          maxWidth: '140px',
-          maxHeight: '52px',
-          width: '100%',
-          height: '100%',
-          margin: '16px auto',
-          transition: 'background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease',
-        }}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        onClick={() => navigate('/PreviewPage')}
+        className={`landing-page-button ${isHovered ? 'hovered' : ''}`} // Add hovered class when button is hovered
+        onMouseEnter={() => setIsHovered(true)} // Trigger hover state when mouse enters button
+        onMouseLeave={() => setIsHovered(false)} // Trigger hover state off when mouse leaves button
+        onClick={() => navigate('/PreviewPage')} // Navigate to PreviewPage when button is clicked
       >
         Get Started
       </button>
 
-      <div
-        style={{
-          width: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginTop: '24px',
-        }}
-      >
+      {/* Container for the image */}
+      <div className="landing-page-image-container">
+        {/* Image displayed on the landing page */}
         <img
-          src={handsImage}
-          alt="Chromify Illustration"
-          style={{
-            maxWidth: '100%',
-            maxHeight: '100%',
-            width: '480px',
-            objectFit: 'contain',
-          }}
+          src={handsImage} // Source of the image
+          alt="Chromify Illustration" // Alt text for the image
+          className="landing-page-image" // CSS class for image styling
         />
       </div>
     </div>
   );
 };
 
+// Export the LandingPage component for use in other parts of the app
 export default LandingPage;
