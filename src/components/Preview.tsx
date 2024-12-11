@@ -219,11 +219,12 @@ export default function Preview() {
         justifyContent: "space-between",
         alignItems: "flex-start",
         padding: "26px",
-        width: "100vw",
-        height: "100vh",
+        width: "100%",
+        height: "100%",
         boxSizing: "border-box",
         backgroundColor: "#FFFFFF",
         fontFamily: "Montserrat, sans-serif",
+        overflow: "hidden", // Prevent scrolling
       }}
     >
       {/* Left Section: Image */}
@@ -237,6 +238,7 @@ export default function Preview() {
             height: "auto",
             borderRadius: "16px",
             objectFit: "cover",
+            margin: "100",
             ...applyFilter(),
           }}
         />
@@ -247,14 +249,14 @@ export default function Preview() {
 
 
       
-      <div style={{ flex: 2, display: "flex", flexDirection: "column" }}>
-        {/* Filter Section */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
         <div
           style={{
-            padding: "20px",
-            backgroundColor: "#F2F2F2",
-            borderRadius: "16px",
-            marginBottom: "26px",
+        width: "55%", 
+        padding: "20px",
+        backgroundColor: "#F2F2F2",
+        borderRadius: "16px",
+        marginBottom: "26px",
           }}
         >
           {/* Filter Header */}
@@ -271,38 +273,18 @@ export default function Preview() {
             </span>
 
             <div>
-              <button onClick={toggleVisibilityIcon}>
-                {isVisibilityOn ? <VisibilityIcon /> : <VisibilityOffIcon />}
+              <button
+          onClick={toggleVisibilityIcon}
+          style={{
+            background: "none",
+            border: "none",
+            padding: "8px",
+            cursor: "pointer",
+          }}
+              >
+          {isVisibilityOn ? <VisibilityIcon /> : <VisibilityOffIcon />}
               </button>
             </div>
-
-            {isFilterVisible ? (
-              <VisibilityIcon
-                onClick={() => {
-                  // Toggle visibility of the filter section
-                  setFilterVisible(false); // Hide filter section
-
-                  // Reset the image and filter states
-                  setFilteredImageUrl(actualFilteredImageUrl); // Show filtered image
-                  setImageVisible(true);
-                  setSelectedFilter(prevFilter); // Keep the previous filter
-                }}
-                style={{ cursor: "pointer" }}
-              />
-            ) : (
-              <VisibilityOffIcon
-                onClick={() => {
-                  // Toggle visibility of the filter section
-                  setFilterVisible(true); // Show filter section
-
-                  // Reset the image to original state when filters are hidden
-                  setFilteredImageUrl(originalImageUrl); // Show original image
-                  setImageVisible(false);
-                  setSelectedFilter(""); // Clear the selected filter
-                }}
-                style={{ cursor: "pointer" }}
-              />
-            )}
           </div>
 
           {/* Colorblindness Type Dropdown */}
@@ -313,21 +295,21 @@ export default function Preview() {
             <select
               value={colorblindType}
               onChange={(e) => {
-                setColorblindType(e.target.value as keyof typeof filters | "Select");
-                setSelectedFilter(""); // Reset selected filter when type changes
+          setColorblindType(e.target.value as keyof typeof filters | "Select");
+          setSelectedFilter(""); // Reset selected filter when type changes
               }}
               style={{
-                width: "100%",
-                padding: "10px",
-                borderRadius: "8px",
-                border: "1px solid #ccc",
-                marginTop: "16px",
-                marginBottom: "16px",
-                fontFamily: "Montserrat, sans-serif",
-                paddingLeft: "16px",
-                appearance: "none",
-                WebkitAppearance: "none",
-                MozAppearance: "none",
+          width: "100%",
+          padding: "10px",
+          borderRadius: "8px",
+          border: "1px solid #ccc",
+          marginTop: "16px",
+          marginBottom: "16px",
+          fontFamily: "Montserrat, sans-serif",
+          paddingLeft: "16px",
+          appearance: "none",
+          WebkitAppearance: "none",
+          MozAppearance: "none",
               }}
             >
               <option value="Select">Select</option>
@@ -343,19 +325,19 @@ export default function Preview() {
             <label
               key={filter}
               style={{
-                display: "block",
-                marginBottom: "8px",
-                fontSize: "14px",
-                fontWeight: "500",
-                fontFamily: "Montserrat, sans-serif",
+          display: "block",
+          marginBottom: "8px",
+          fontSize: "14px",
+          fontWeight: "500",
+          fontFamily: "Montserrat, sans-serif",
               }}
             >
               <input
-                type="radio"
-                value={filter}
-                checked={selectedFilter === filter}
-                onChange={() => {setSelectedFilter(filter); setPrevFilter(filter); setSeverity(100);setPreviousSeverity(100)}}
-                style={{ marginRight: "8px" }}
+          type="radio"
+          value={filter}
+          checked={selectedFilter === filter}
+          onChange={() => {setSelectedFilter(filter); setPrevFilter(filter); setSeverity(100);setPreviousSeverity(100)}}
+          style={{ marginRight: "8px" }}
               />
               {filter}
             </label>
@@ -365,10 +347,12 @@ export default function Preview() {
         {/* Adjustment Section */}
         <div
           style={{
+            width: "55%",
             padding: "20px",
             backgroundColor: "#F2F2F2",
             borderRadius: "16px",
             marginBottom: "26px",
+            alignSelf: "flex-end", // Align to the right
           }}
         >
           {/* Adjustment Header */}
@@ -459,13 +443,15 @@ export default function Preview() {
           </button>
         </div>
 
-        {/* Additional Container */}
+        {/* About Container */}
         <div
           style={{
+            width: "55%",
             padding: "20px",
             backgroundColor: "#F2F2F2",
             borderRadius: "16px",
             marginTop: "26px",
+            alignSelf: "flex-end", // Align to the right
           }}
         >
           {/* Header */}
