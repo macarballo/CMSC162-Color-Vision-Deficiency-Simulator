@@ -84,6 +84,8 @@ export default function Preview() {
   const [prevFilter, setPrevFilter] = useState("");
   const [isVisibilityOn, setVisibilityOn] = useState(true);
   const [filteredImageUrl, setFilteredImageUrl] = useState<string>("");
+  const [compressedImageUrl, setCompressedImageUrl] = useState<string>("");
+
 
   // Function to handle a new image upload
   const handleNewImageClick = () => {
@@ -157,10 +159,20 @@ export default function Preview() {
       }
   
       ctx.putImageData(imageData, 0, 0);
-      const newImageUrl = canvas.toDataURL();
-      setFilteredImageUrl(newImageUrl);
-      setActualFilteredImageUrl(newImageUrl);
+      const newCompressedImageUrl = canvas.toDataURL("image/jpeg", 0.8);
+      setCompressedImageUrl(newCompressedImageUrl); // Save the compressed image
+      setFilteredImageUrl(newCompressedImageUrl); // Use the compressed image for display
+      setActualFilteredImageUrl(newCompressedImageUrl);
     };
+  };
+  const resetImage = () => {
+    setFilteredImageUrl(originalImageUrl); // Reset to the original image (non-compressed)
+    setActualFilteredImageUrl(originalImageUrl); // Reset actual filtered image to the original image
+    setColorblindType("Select");
+    setSelectedFilter("");
+    setSeverity(100);
+    setPreviousSeverity(100);
+    setVisibilityOn(true);
   };
 
   // Function to toggle the visibility of the image and reset the severity value
@@ -433,12 +445,7 @@ export default function Preview() {
         {/* Reset Button */}
         <div style={{ display: "flex", justifyContent: "flex-end" }}>
           <button
-            onClick={() => {
-              setFilteredImageUrl(originalImageUrl); // Reset the image to original
-              setColorblindType("Select"); // Reset the filter selection
-              setSelectedFilter(""); // Reset selected filter
-              setSeverity(0);
-            }}
+            onClick={resetImage}
             style={{
               maxWidth: "140px",
               maxHeight: "52px",
