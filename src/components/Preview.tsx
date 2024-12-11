@@ -75,9 +75,9 @@ export default function Preview() {
   const [colorblindType, setColorblindType] = useState<keyof typeof filters | "Select">("Select");
   const [selectedFilter, setSelectedFilter] = useState("");
   const [isAdjustmentsVisible, setAdjustmentsVisible] = useState(true);
-  const [severity, setSeverity] = useState(100); // Default severity to 100
-  const [previousSeverity, setPreviousSeverity] = useState(100); // Store the previous severity
-  const [isFilterVisible, setFilterVisible] = useState(true); // This controls filter visibility
+  const [severity, setSeverity] = useState(100); 
+  const [previousSeverity, setPreviousSeverity] = useState(100); 
+  const [isFilterVisible, setFilterVisible] = useState(true); 
   const [actualFilteredImageUrl, setActualFilteredImageUrl] = useState<string>("");
   const [originalImageUrl, setOriginalImageUrl] = useState<string>("");
   const [isImageVisible, setImageVisible] = useState(false);
@@ -93,7 +93,7 @@ export default function Preview() {
     fileInput.type = 'file';
     fileInput.accept = 'image/*';
     fileInput.onchange = handleFileUpload;
-    fileInput.click(); // Trigger the file input dialog
+    fileInput.click(); 
   };
 
   // Function to handle the file input event when an image is uploaded
@@ -107,12 +107,12 @@ export default function Preview() {
           setOriginalImageUrl(uploadedImage);
           setFilteredImageUrl(uploadedImage);
           setActualFilteredImageUrl(uploadedImage);
-          setColorblindType("Select"); // Reset colorblindness type after image upload
-          setSelectedFilter(""); // Reset selected filter
-          setSeverity(100); // Reset severity to default
+          setColorblindType("Select"); 
+          setSelectedFilter("");
+          setSeverity(100); 
         }
       };
-      reader.readAsDataURL(file); // Read the uploaded file as a data URL
+      reader.readAsDataURL(file); 
     }
   };
 
@@ -121,18 +121,18 @@ export default function Preview() {
     if (colorblindType === "Select" || !selectedFilter || !isFilterVisible) return;
   
     const img = new Image();
-    img.src = originalImageUrl; // Set the image source
+    img.src = originalImageUrl; 
     img.onload = () => {
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d")!;
-      canvas.width = img.width; // Set the canvas width
-      canvas.height = img.height; // Set the canvas height
-      ctx.drawImage(img, 0, 0); // Draw the image on the canvas
+      canvas.width = img.width; 
+      canvas.height = img.height; 
+      ctx.drawImage(img, 0, 0); 
   
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const matrix = simulationMatrices[selectedFilter]
         ? simulationMatrices[selectedFilter][0]
-        : simulationMatrices["Normal"][0]; // Get the corresponding simulation matrix for the filter
+        : simulationMatrices["Normal"][0]; 
 
       // Adjust the matrix based on the severity of the colorblindness
       const normalMatrix = simulationMatrices["Normal"][0];
@@ -142,9 +142,9 @@ export default function Preview() {
   
       // Process each pixel in the image data using the adjusted matrix
       for (let i = 0; i < imageData.data.length; i += 4) {
-        const r = imageData.data[i]; // Red channel
-        const g = imageData.data[i + 1]; // Green channel
-        const b = imageData.data[i + 2]; // Blue channel
+        const r = imageData.data[i]; 
+        const g = imageData.data[i + 1]; 
+        const b = imageData.data[i + 2]; 
         
         // Apply the adjusted matrix to each color channel (RGB)
         const [newR, newG, newB] = [
@@ -160,14 +160,14 @@ export default function Preview() {
   
       ctx.putImageData(imageData, 0, 0);
       const newCompressedImageUrl = canvas.toDataURL("image/jpeg", 0.1);
-      setCompressedImageUrl(newCompressedImageUrl); // Save the compressed image
-      setFilteredImageUrl(newCompressedImageUrl); // Use the compressed image for display
+      setCompressedImageUrl(newCompressedImageUrl); 
+      setFilteredImageUrl(newCompressedImageUrl); 
       setActualFilteredImageUrl(newCompressedImageUrl);
     };
   };
   const resetImage = () => {
-    setFilteredImageUrl(originalImageUrl); // Reset to the original image (non-compressed)
-    setActualFilteredImageUrl(originalImageUrl); // Reset actual filtered image to the original image
+    setFilteredImageUrl(originalImageUrl); 
+    setActualFilteredImageUrl(originalImageUrl); 
     setColorblindType("Select");
     setSelectedFilter("");
     setSeverity(100);
@@ -245,19 +245,19 @@ export default function Preview() {
         boxSizing: "border-box",
         backgroundColor: "#FFFFFF",
         fontFamily: "Montserrat, sans-serif",
-        overflow: "hidden", // Prevent scrolling
+        overflow: "hidden", 
       }}
     >
 
-      {/* Left Section: Image */}
+      {/* Preview Image */}
       <div style={{ 
         display: "flex", 
         flexDirection: "column", 
         padding: "20px", 
-        width: "60%",  // Decreased width for better balance
+        width: "60%",  
         height: "100%",
-        justifyContent: "center", // Center-align for better aesthetics
-        alignItems: "center", // Align content in the center
+        justifyContent: "center",
+        alignItems: "center",
       }}>
         {actualFilteredImageUrl || filteredImageUrl ? (
           <img
@@ -275,17 +275,17 @@ export default function Preview() {
         ) : (
           <div
             style={{
-              width: "60%", // Adjusted width for better alignment
-              height: "60%", // Adjusted height to avoid awkward proportions
-              backgroundColor: "#FFFFFF", // White background when no image
+              width: "60%", 
+              height: "60%", 
+              backgroundColor: "#FFFFFF", 
               borderRadius: "16px",
-              boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)", // Add slight shadow for design enhancement
+              boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
             }}
           ></div>
         )}
       </div>
 
-      {/* Right Section: Filters and Adjustments */}
+      {/* Filters and Adjustments */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
         <div
           style={{
@@ -333,7 +333,7 @@ export default function Preview() {
               value={colorblindType}
               onChange={(e) => {
                 setColorblindType(e.target.value as keyof typeof filters | "Select");
-                setSelectedFilter(""); // Reset selected filter when type changes
+                setSelectedFilter(""); 
               }}
               style={{
                 width: "100%",
@@ -357,7 +357,7 @@ export default function Preview() {
             <ExpandMoreIcon style={{ position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)" }} />
           </div>
 
-          {/* Radio Buttons for Filter Options */}
+          {/* Filter Options */}
           {filters[colorblindType]?.map((filter: string) => (
             <label
               key={filter}
@@ -389,7 +389,7 @@ export default function Preview() {
             backgroundColor: "#F2F2F2",
             borderRadius: "16px",
             marginBottom: "26px",
-            alignSelf: "flex-end", // Align to the right
+            alignSelf: "flex-end", 
           }}
         >
           {/* Adjustment Header */}
@@ -477,7 +477,7 @@ export default function Preview() {
             backgroundColor: "#F2F2F2",
             borderRadius: "16px",
             marginTop: "26px",
-            alignSelf: "flex-end", // Align to the right
+            alignSelf: "flex-end", 
           }}
         >
           {/* Header */}
