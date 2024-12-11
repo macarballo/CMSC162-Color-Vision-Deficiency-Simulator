@@ -75,7 +75,7 @@ if is_production():
     window.load_file(os.path.join(get_production_path(), "build/index.html"))   # type: ignore
 else:
     window = app.create_window(
-        title="CMSC 162",
+        title="Chromify",
         js_apis=[TestClass()],    # Define TestClass() here
         dev_tools=True,
     )

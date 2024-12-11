@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom'; 
+import { saveAs } from 'file-saver';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import ReplayIcon from '@mui/icons-material/Replay';
@@ -9,7 +10,6 @@ import InfoIcon from '@mui/icons-material/Info';
 import LinkIcon from '@mui/icons-material/Link';
 import AddIcon from '@mui/icons-material/Add'; 
 import GetAppIcon from '@mui/icons-material/GetApp'; 
-import IshiharaPlate from '../assets/Ishihara_Plate_3.jpg'
 
 const filters: { [key: string]: string[] } = {
   "Anomalous Trichromacy": [
@@ -83,8 +83,6 @@ export default function Preview() {
   const [prevFilter, setPrevFilter] = useState("");
   const [isVisibilityOn, setVisibilityOn] = useState(true);
   const [filteredImageUrl, setFilteredImageUrl] = useState<string>("");
-  
-  const navigate = useNavigate(); // Initialize the navigate function
 
   const handleNewImageClick = () => {
     const fileInput = document.createElement('input');
@@ -504,14 +502,6 @@ export default function Preview() {
                     National Eye Institute
                   </span>
                 </div>
-                {/* <a
-                  href="https://www.nei.nih.gov/learn-about-eye-health/eye-conditions-and-diseases/color-blindness/types-color-vision-deficiency"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ fontFamily: "Montserrat", fontSize: "16px", color: "#007BFF", textDecoration: "none" }}
-                >
-                  Read more
-                </a> */}
               </div>
             </>
           )}
@@ -542,29 +532,6 @@ export default function Preview() {
           >
             <AddIcon style={{ marginRight: "8px" }} />
             New
-          </button>
-          <button
-            style={{
-              maxWidth: "140px",
-              maxHeight: "52px",
-              width: "100%",
-              height: "100%",
-              padding: "16px 20px",
-              fontWeight: "600",
-              fontSize: "16px",
-              borderRadius: "4px",
-              backgroundColor: "#4E6AF0",
-              border: "none",
-              color: "#FFF",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              fontFamily: "Montserrat, sans-serif",
-            }}
-          >
-            <GetAppIcon style={{ marginRight: "8px" }} />
-            Export
           </button>
         </div>
       </div>
