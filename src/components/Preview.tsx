@@ -159,7 +159,7 @@ export default function Preview() {
       }
   
       ctx.putImageData(imageData, 0, 0);
-      const newCompressedImageUrl = canvas.toDataURL("image/jpeg", 0.8);
+      const newCompressedImageUrl = canvas.toDataURL("image/jpeg", 0.1);
       setCompressedImageUrl(newCompressedImageUrl); // Save the compressed image
       setFilteredImageUrl(newCompressedImageUrl); // Use the compressed image for display
       setActualFilteredImageUrl(newCompressedImageUrl);
