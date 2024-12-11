@@ -1,4 +1,5 @@
-import { useState } from "react";
+import React, { useState } from "react";
+import { useNavigate } from 'react-router-dom'; 
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import ReplayIcon from '@mui/icons-material/Replay';
@@ -8,9 +9,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import LinkIcon from '@mui/icons-material/Link';
 import AddIcon from '@mui/icons-material/Add'; 
 import GetAppIcon from '@mui/icons-material/GetApp'; 
-import { useNavigate } from 'react-router-dom'; // Import the useNavigate hook
 import IshiharaPlate from '../assets/Ishihara_Plate_3.jpg'
-
 
 const filters: { [key: string]: string[] } = {
   "Anomalous Trichromacy": [
@@ -71,7 +70,6 @@ const simulationMatrices: { [key: string]: number[][][] } = {
   // Add other matrices as needed
 };
 
-
 export default function Preview() {
   const [colorblindType, setColorblindType] = useState<keyof typeof filters | "Select">("Select");
   const [selectedFilter, setSelectedFilter] = useState("");
@@ -79,16 +77,15 @@ export default function Preview() {
   const [severity, setSeverity] = useState(100); // Default severity to 100
   const [previousSeverity, setPreviousSeverity] = useState(100); // Store the previous severity
   const [isFilterVisible, setFilterVisible] = useState(true); // This controls filter visibility
-  const [filteredImageUrl, setFilteredImageUrl] = useState<string>(IshiharaPlate);
-  const [actualFilteredImageUrl, setActualFilteredImageUrl] = useState<string>(IshiharaPlate);
-  const [originalImageUrl, setOriginalImageUrl] = useState<string>(IshiharaPlate);
+  const [actualFilteredImageUrl, setActualFilteredImageUrl] = useState<string>("");
+  const [originalImageUrl, setOriginalImageUrl] = useState<string>("");
   const [isImageVisible, setImageVisible] = useState(false);
   const [prevFilter, setPrevFilter] = useState("");
   const [isVisibilityOn, setVisibilityOn] = useState(true);
-  
-  
+  const [filteredImageUrl, setFilteredImageUrl] = useState<string>("");
   
   const navigate = useNavigate(); // Initialize the navigate function
+
   const handleNewImageClick = () => {
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
@@ -196,14 +193,6 @@ export default function Preview() {
     setFilterVisible((prev) => !prev);
   };
 
-  /*
-  const getFilterStyle = () => {
-    if (!isFilterVisible || colorblindType === "Select" || !selectedFilter) {
-      return {};
-    }
-    // Apply your filter logic here based on selectedFilter and severity
-  };
-  */
   const labelStyle = {
     fontSize: "16px",
     fontWeight: "500",
@@ -227,32 +216,48 @@ export default function Preview() {
         overflow: "hidden", // Prevent scrolling
       }}
     >
+
       {/* Left Section: Image */}
-      <div style={{ display: "flex", flexDirection: "column", padding: "20px" }}>
-      {/* Image Upload */}
-        <img
-          src={isImageVisible ? actualFilteredImageUrl : filteredImageUrl} // Toggle between filtered and actual filtered image based on isImageVisible
-          alt="Preview"
-          style={{
-            width: "100%",
-            height: "auto",
-            borderRadius: "16px",
-            objectFit: "cover",
-            margin: "100",
-            ...applyFilter(),
-          }}
-        />
+      <div style={{ 
+        display: "flex", 
+        flexDirection: "column", 
+        padding: "20px", 
+        width: "60%",  // Decreased width for better balance
+        height: "100%",
+        justifyContent: "center", // Center-align for better aesthetics
+        alignItems: "center", // Align content in the center
+      }}>
+        {actualFilteredImageUrl || filteredImageUrl ? (
+          <img
+            src={isImageVisible ? actualFilteredImageUrl : filteredImageUrl}
+            style={{
+              width: "100%",
+              height: "738px",
+              borderRadius: "16px",
+              objectFit: "cover",
+              marginRight: "-1px",
+              marginTop: "-15px",
+              ...applyFilter(),
+            }}
+          />
+        ) : (
+          <div
+            style={{
+              width: "60%", // Adjusted width for better alignment
+              height: "60%", // Adjusted height to avoid awkward proportions
+              backgroundColor: "#FFFFFF", // White background when no image
+              borderRadius: "16px",
+              boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)", // Add slight shadow for design enhancement
+            }}
+          ></div>
+        )}
       </div>
 
       {/* Right Section: Filters and Adjustments */}
-      
-
-
-      
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
         <div
           style={{
-        width: "55%", 
+        width: "91%", 
         padding: "20px",
         backgroundColor: "#F2F2F2",
         borderRadius: "16px",
@@ -347,7 +352,7 @@ export default function Preview() {
         {/* Adjustment Section */}
         <div
           style={{
-            width: "55%",
+            width: "91%", 
             padding: "20px",
             backgroundColor: "#F2F2F2",
             borderRadius: "16px",
@@ -446,7 +451,7 @@ export default function Preview() {
         {/* About Container */}
         <div
           style={{
-            width: "55%",
+            width: "91%", 
             padding: "20px",
             backgroundColor: "#F2F2F2",
             borderRadius: "16px",
@@ -499,14 +504,14 @@ export default function Preview() {
                     National Eye Institute
                   </span>
                 </div>
-                <a
+                {/* <a
                   href="https://www.nei.nih.gov/learn-about-eye-health/eye-conditions-and-diseases/color-blindness/types-color-vision-deficiency"
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{ fontFamily: "Montserrat", fontSize: "16px", color: "#007BFF", textDecoration: "none" }}
                 >
                   Read more
-                </a>
+                </a> */}
               </div>
             </>
           )}

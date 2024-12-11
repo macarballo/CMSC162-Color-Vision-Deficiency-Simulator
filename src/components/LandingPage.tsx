@@ -1,18 +1,11 @@
-import handsImage from '../assets/hands.png';
 import { useState } from 'react';
-import UploadWindow from './UploadWindow';
-import Preview from './Preview';
+import { useNavigate } from 'react-router-dom';
+import handsImage from '../assets/hands.png';
 import './LandingPage.css'; // Import the CSS file for transitions
 
 const LandingPage: React.FC = () => {
   const [isHovered, setIsHovered] = useState(false);
-  const [showUploadWindow, setShowUploadWindow] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-
-  const handleFileSelect = (file: File) => {
-    setSelectedFile(file);
-    setShowUploadWindow(false); // Hide upload window after file selection
-  };
+  const navigate = useNavigate(); // Hook for navigation
 
   return (
     <div
@@ -29,92 +22,76 @@ const LandingPage: React.FC = () => {
         marginTop: '40px',
       }}
     >
-      {!selectedFile && (
-        <>
-          <h1
-            style={{
-              fontFamily: 'Montserrat',
-              fontSize: '10vw',
-              fontWeight: 'bold',
-              margin: '0',
-              textAlign: 'center',
-            }}
-          >
-            Chromify
-          </h1>
-          <p
-            style={{
-              fontFamily: 'Montserrat',
-              fontSize: '1.9vw',
-              fontWeight: 'bold',
-              margin: '16px 0',
-              textAlign: 'center',
-            }}
-          >
-            Empathy through every hue.
-          </p>
+      <h1
+        style={{
+          fontFamily: 'Montserrat',
+          fontSize: '10vw',
+          fontWeight: 'bold',
+          margin: '0',
+          textAlign: 'center',
+        }}
+      >
+        Chromify
+      </h1>
+      <p
+        style={{
+          fontFamily: 'Montserrat',
+          fontSize: '1.9vw',
+          fontWeight: 'bold',
+          margin: '16px 0',
+          textAlign: 'center',
+        }}
+      >
+        Empathy through every hue.
+      </p>
 
-          <button
-            style={{
-              backgroundColor: isHovered ? 'transparent' : '#4E6AF0',
-              color: isHovered ? '#4E6AF0' : 'white',
-              border: `2px solid ${isHovered ? '#4E6AF0' : 'transparent'}`,
-              borderRadius: '4px',
-              padding: '16px 20px',
-              fontFamily: 'Montserrat',
-              fontSize: '16px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              maxWidth: '140px',
-              maxHeight: '52px',
-              width: '100%',
-              height: '100%',
-              margin: '16px auto',
-              transition: 'background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease',
-            }}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-            onClick={() => setShowUploadWindow(true)}
-          >
-            Get Started
-          </button>
+      <button
+        style={{
+          backgroundColor: isHovered ? 'transparent' : '#4E6AF0',
+          color: isHovered ? '#4E6AF0' : 'white',
+          border: `2px solid ${isHovered ? '#4E6AF0' : 'transparent'}`,
+          borderRadius: '4px',
+          padding: '16px 20px',
+          fontFamily: 'Montserrat',
+          fontSize: '16px',
+          fontWeight: '600',
+          cursor: 'pointer',
+          maxWidth: '140px',
+          maxHeight: '52px',
+          width: '100%',
+          height: '100%',
+          margin: '16px auto',
+          transition: 'background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease',
+        }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        onClick={() => navigate('/PreviewPage')}
+      >
+        Get Started
+      </button>
 
-          {showUploadWindow && (
-            <div className={`upload-window show`}>
-              <UploadWindow onClose={() => setShowUploadWindow(false)} onFileSelect={handleFileSelect} />
-            </div>
-          )}
-
-          <div
-            style={{
-              width: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginTop: '24px',
-            }}
-          >
-            <img
-              src={handsImage}
-              alt="Chromify Illustration"
-              style={{
-                maxWidth: '100%',
-                maxHeight: '100%',
-                width: '480px',
-                objectFit: 'contain',
-              }}
-            />
-          </div>
-        </>
-      )}
-
-      {selectedFile && (
-        <div style={{ marginTop: '20px', width: '100%' }}>
-          <Preview file={selectedFile} />
-        </div>
-      )}
+      <div
+        style={{
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginTop: '24px',
+        }}
+      >
+        <img
+          src={handsImage}
+          alt="Chromify Illustration"
+          style={{
+            maxWidth: '100%',
+            maxHeight: '100%',
+            width: '480px',
+            objectFit: 'contain',
+          }}
+        />
+      </div>
     </div>
   );
-}
+};
 
 export default LandingPage;
